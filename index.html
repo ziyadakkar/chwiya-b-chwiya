@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chwiya b Chwiya</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&family=Noto+Naskh+Arabic:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* Plan : palette chaude (orange épice, safran, rose de Marrakech, rouge brique, ocre) sur fond crème ; motif d'étoile à 8 branches (zellige) dans l'en-tête. Une couleur par thème. Une colonne mobile-first. */
+:root{
+  --bg:#fcf4ec; --surface:#ffffff; --ink:#2b1a12; --muted:#7d5f50;
+  --accent:#e0561b; --accent-ink:#ffffff; --saffron:#f0a81c; --line:#f1dfcf;
+  --good:#5f9e12; --bad:#c62828; --soft:#f8cdb3;
+  --mint:#5f9e12; --rose:#d6336c; --paprika:#e0561b; --sky:#b45309; --indigo:#c0262d; --plum:#9c2a6b;
+  --hero:#d9481a;
+  --display:"Bricolage Grotesque",system-ui,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --arabic:"Noto Naskh Arabic","Geeza Pro","Arial",serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#1c120d; --surface:#2a1b14; --ink:#f7ece3; --muted:#c7a895;
+    --accent:#ff8247; --accent-ink:#1c120d; --saffron:#f7bb45; --line:#432d22;
+    --good:#9ccc4a; --bad:#ff7a6e; --soft:#5c3424; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1c120d; --surface:#2a1b14; --ink:#f7ece3; --muted:#c7a895;
+  --accent:#ff8247; --accent-ink:#1c120d; --saffron:#f7bb45; --line:#432d22;
+  --good:#9ccc4a; --bad:#ff7a6e; --soft:#5c3424; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:660px;margin:0 auto;padding:20px 16px 56px}
+.hero{position:relative;overflow:hidden;border-radius:22px;padding:26px 22px 24px;margin-bottom:14px;color:#fff;
+  background-color:var(--hero);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.16' stroke-width='1.5'%3E%3Crect x='14' y='14' width='20' height='20'/%3E%3Crect x='14' y='14' width='20' height='20' transform='rotate(45 24 24)'/%3E%3Ccircle cx='24' cy='24' r='4'/%3E%3C/g%3E%3C/svg%3E"),
+    linear-gradient(135deg,#f59e1b 0%,#e0561b 45%,#b3243b 100%);
+  box-shadow:0 10px 30px -12px rgba(200,70,20,.6)}
+.hero::after{content:"";position:absolute;right:-40px;bottom:-60px;width:180px;height:180px;border-radius:50%;
+  background:radial-gradient(circle,#ffd36b 0%,transparent 70%);opacity:.55}
+.hero .eyebrow{font-family:var(--arabic);font-size:1.35rem;color:#fff1c2;display:block;line-height:1.2}
+.hero h1{font-family:var(--display);font-weight:800;font-size:2.3rem;line-height:1.05;margin:4px 0 8px;letter-spacing:-.01em;text-wrap:balance}
+.hero p{margin:0;max-width:42ch;color:rgba(255,255,255,.88);position:relative;z-index:1}
+.hero .dots{display:flex;gap:6px;margin-top:14px;position:relative;z-index:1}
+.hero .dots i{width:22px;height:6px;border-radius:3px;display:block}
+nav{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;position:sticky;top:8px;z-index:5;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:1 0 auto;border:0;background:transparent;color:var(--muted);font:600 .9rem var(--body);padding:9px 11px;border-radius:9px;cursor:pointer;white-space:nowrap}
+nav button[aria-selected="true"]{background:linear-gradient(135deg,var(--accent),var(--indigo));color:#fff;box-shadow:0 4px 12px -6px var(--accent)}
+button:focus-visible,input:focus-visible,.cat:focus-visible,.opt:focus-visible,.card:focus-visible{outline:3px solid var(--saffron);outline-offset:2px}
+section{margin-top:20px}
+h2{font-family:var(--display);font-weight:600;font-size:1.25rem;margin:0 0 10px;text-wrap:balance}
+h3{font-family:var(--display);font-weight:600;font-size:1.05rem;margin:22px 0 8px}
+.muted{color:var(--muted)}
+.small{font-size:.88rem}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px;border-top:4px solid var(--c,var(--accent))}
+.stat b{color:var(--c,var(--ink))}
+.stat b{display:block;font-family:var(--display);font-size:1.5rem;font-variant-numeric:tabular-nums;line-height:1.2}
+.stat span{font-size:.8rem;color:var(--muted)}
+.goal{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:16px;display:flex;flex-direction:column;gap:8px}
+.goal .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.goal .top b{font-variant-numeric:tabular-nums}
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.cat{--c:var(--accent);background:color-mix(in srgb,var(--c) 7%,var(--surface));border:1px solid color-mix(in srgb,var(--c) 22%,var(--line));border-top:4px solid var(--c);border-radius:14px;padding:12px 14px;text-align:left;cursor:pointer;font:inherit;color:inherit;display:flex;flex-direction:column;gap:6px}
+.cat:hover{background:color-mix(in srgb,var(--c) 12%,var(--surface))}
+.cat[aria-pressed="true"]{background:color-mix(in srgb,var(--c) 20%,var(--surface));border-color:var(--c);box-shadow:0 6px 16px -10px var(--c)}
+.cat strong{color:color-mix(in srgb,var(--c) 70%,var(--ink))}
+.cat .bar i{background:var(--c)}
+.cat .check{display:none}
+.cat[aria-pressed="true"] .check{display:inline}
+.cat strong{font-weight:700}
+.cat small{color:var(--muted);font-variant-numeric:tabular-nums}
+.bar{height:7px;background:var(--line);border-radius:4px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%;background:var(--good)}
+.bar i.mid{background:var(--saffron)}
+.bar i.acc{background:linear-gradient(90deg,var(--saffron),var(--rose))}
+.goal .bar{height:10px;border-radius:5px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.between{justify-content:space-between}
+.center{justify-content:center}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 .95rem var(--body);padding:11px 18px;border-radius:12px;cursor:pointer}
+.btn.primary{background:linear-gradient(135deg,var(--accent),var(--indigo));border-color:transparent;color:#fff;box-shadow:0 6px 16px -8px var(--accent)}
+.btn.good{background:var(--good);border-color:var(--good);color:#fff}
+.btn.bad{background:transparent;border-color:var(--bad);color:var(--bad)}
+.btn.sm{padding:6px 11px;font-size:.85rem}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.toggle{display:flex;align-items:center;gap:8px;font-size:.92rem;color:var(--muted);cursor:pointer}
+.card{--c:var(--saffron);background:linear-gradient(180deg,color-mix(in srgb,var(--c) 14%,var(--surface)) 0%,var(--surface) 65%);border:1px solid color-mix(in srgb,var(--c) 30%,var(--line));border-radius:22px;padding:28px 20px 36px;min-height:250px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:8px;cursor:pointer;position:relative;border-top:6px solid var(--c);box-shadow:0 14px 30px -18px var(--c)}
+.card .chip{background:var(--c);border-color:var(--c);color:#fff;font-weight:600}
+.lat{font-family:var(--display);font-weight:800;font-size:2rem;line-height:1.15}
+.arb{font-family:var(--arabic);font-size:1.6rem;direction:rtl;color:color-mix(in srgb,var(--c,var(--accent)) 75%,var(--ink))}
+.fr{font-size:1.3rem;font-weight:600}
+.note{font-size:.9rem;color:var(--muted);max-width:44ch}
+.hint{position:absolute;bottom:10px;font-size:.8rem;color:var(--muted)}
+.chip{display:inline-block;font-size:.78rem;padding:2px 8px;border-radius:99px;background:var(--bg);border:1px solid var(--line);color:var(--muted)}
+.progress{font-size:.9rem;color:var(--muted);font-variant-numeric:tabular-nums;margin:10px 0}
+.q{--c:var(--accent);background:linear-gradient(180deg,color-mix(in srgb,var(--c) 12%,var(--surface)),var(--surface) 70%);border:1px solid color-mix(in srgb,var(--c) 25%,var(--line));border-radius:20px;padding:22px 20px;text-align:center;margin-bottom:12px;border-top:6px solid var(--c)}
+.q .big{font-family:var(--display);font-weight:800;font-size:1.6rem;line-height:1.2;text-wrap:balance}
+.q .arb{font-size:1.4rem}
+.opts{display:grid;gap:8px}
+.opt{border:1px solid var(--line);background:var(--surface);color:var(--ink);font:500 1rem var(--body);padding:14px 16px;border-radius:14px;text-align:left;cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.opt.ok{border-color:var(--good);background:color-mix(in srgb,var(--good) 14%,var(--surface))}
+.opt.ko{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--surface))}
+.opt .arb{font-size:1.05rem;color:var(--muted);margin-inline-start:6px}
+input[type=text]{width:100%;font:500 1.1rem var(--body);padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.fb{margin-top:10px;padding:10px 12px;border-radius:10px;font-size:.95rem}
+.fb.ok{background:color-mix(in srgb,var(--good) 14%,var(--surface));border:1px solid var(--good)}
+.fb.ko{background:color-mix(in srgb,var(--bad) 12%,var(--surface));border:1px solid var(--bad)}
+.tiles{display:flex;flex-wrap:wrap;gap:8px;min-height:52px;padding:8px;border-radius:12px}
+.tiles.answer{background:var(--surface);border:2px dashed var(--line);margin-bottom:10px}
+.tile{border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 1rem var(--body);padding:8px 12px;border-radius:9px;cursor:pointer}
+.answer .tile{border-color:var(--accent);color:var(--accent)}
+.ex-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.ex-grid .cat p{margin:0;font-size:.9rem;color:var(--muted)}
+.verbs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font-size:.8rem;color:var(--muted);font-weight:600;background:var(--bg)}
+td.pr{color:var(--muted);white-space:nowrap}
+td.f{font-weight:600}
+.scroll{overflow-x:auto;border-radius:12px}
+td.sym{font-family:var(--display);font-weight:800;font-size:1.3rem;color:var(--accent)}
+td.ar{font-family:var(--arabic);font-size:1.3rem}
+.tip{background:color-mix(in srgb,var(--saffron) 14%,var(--surface));border:1px solid color-mix(in srgb,var(--saffron) 45%,var(--line));border-radius:12px;padding:12px 14px;margin-top:14px;font-size:.95rem}
+.tip ul{margin:6px 0 0;padding-left:18px}
+.done{text-align:center;padding:30px 18px;border-radius:22px;color:#fff;background-color:var(--hero);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.14' stroke-width='1.5'%3E%3Crect x='14' y='14' width='20' height='20'/%3E%3Crect x='14' y='14' width='20' height='20' transform='rotate(45 24 24)'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(135deg,#f59e1b,#e0561b 55%,#b3243b)}
+.done b{font-family:var(--display);font-size:3rem;display:block;color:#fff1c2}
+.done p{color:rgba(255,255,255,.92)}
+.done .btn:not(.primary){background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.35);color:#fff}
+.done .btn.primary{background:#fff1c2;color:#8a2a12;box-shadow:none}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.lvl{display:grid;gap:10px}
+.lvl .item{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start}
+.lvl .num{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:800 .9rem var(--display);background:var(--bg);border:1px solid var(--line);color:var(--muted)}
+.lvl .num.done{background:var(--good);border-color:var(--good);color:#fff}
+.lvl .num.now{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.lvl p{margin:2px 0 6px;font-size:.88rem;color:var(--muted)}
+.list{display:grid;gap:6px}
+.list .li{display:flex;justify-content:space-between;gap:10px;padding:8px 12px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.list .li span:last-child{color:var(--muted);font-size:.88rem;text-align:right}
+.chart svg{width:100%;height:auto;display:block}
+.legend{display:flex;gap:14px;font-size:.82rem;color:var(--muted);margin-top:6px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.steps{counter-reset:s;list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.steps li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px 12px 48px;position:relative}
+.steps li:nth-child(1){--c:var(--accent)}.steps li:nth-child(2){--c:var(--rose)}.steps li:nth-child(3){--c:var(--saffron)}.steps li:nth-child(4){--c:var(--indigo)}
+.steps li{border-left:4px solid var(--c)}
+.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:14px;top:12px;width:24px;height:24px;border-radius:50%;background:var(--c);color:#fff;font:800 .85rem var(--display);display:grid;place-items:center}
+.steps b{display:block}
+.steps span{font-size:.9rem;color:var(--muted)}
+.sync{border-left:4px solid var(--accent);margin-bottom:16px}
+.sync-form{display:grid;gap:8px;margin-top:10px}
+.sync input{width:100%;font:500 1rem var(--body);padding:11px 13px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.sync .chip.on{background:var(--good);border-color:var(--good);color:#fff}
+.sync .chip.err{background:var(--bad);border-color:var(--bad);color:#fff}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:no-preference){.opt,.tile,nav button,.bar i{transition:background .15s,border-color .15s,width .3s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+  <span class="eyebrow" lang="ar">شوية بشوية</span>
+  <h1>Chwiya b Chwiya</h1>
+  <p>Le darija, petit à petit. Les mots qu'on entend vraiment à la maison, au souk et en famille.</p>
+  <div class="dots" aria-hidden="true"><i style="background:#fff1c2"></i><i style="background:#ffb36b"></i><i style="background:#ff8fa8"></i><i style="background:#ffffff"></i></div>
+</header>
+
+<nav role="tablist" aria-label="Sections">
+  <button role="tab" id="tab-home" data-view="home" aria-selected="true">Thèmes</button>
+  <button role="tab" id="tab-cards" data-view="cards" aria-selected="false">Cartes</button>
+  <button role="tab" id="tab-ex" data-view="ex" aria-selected="false">Exercices</button>
+  <button role="tab" id="tab-conj" data-view="conj" aria-selected="false">Conjugaison</button>
+  <button role="tab" id="tab-prog" data-view="prog" aria-selected="false">Progrès</button>
+  <button role="tab" id="tab-guide" data-view="guide" aria-selected="false">Méthode</button>
+</nav>
+
+<!-- ============ THEMES ============ -->
+<section id="view-home">
+  <div class="goal">
+    <div class="top"><span>Objectif du jour</span><b id="goal-txt">0 / 20 réponses</b></div>
+    <div class="bar"><i class="acc" id="goal-bar" style="width:0%"></i></div>
+    <span class="small muted" id="goal-msg">10 minutes suffisent. La régularité compte plus que la durée.</span>
+  </div>
+  <h2>Choisis un thème</h2>
+  <p class="muted" style="margin-top:-4px">Touche un ou plusieurs thèmes, puis révise avec les cartes ou fais des exercices. Sans sélection, tout est mélangé.</p>
+  <div class="cats" id="cats"></div>
+  <div class="row" style="margin-top:14px">
+    <button class="btn primary" id="go-cards">Réviser avec les cartes</button>
+    <button class="btn" id="go-ex">Faire des exercices</button>
+  </div>
+  <div class="row between" style="margin-top:16px">
+    <label class="toggle" for="opt-arabic"><input type="checkbox" id="opt-arabic"> Afficher l'écriture arabe</label>
+  </div>
+</section>
+
+<!-- ============ CARTES ============ -->
+<section id="view-cards" hidden>
+  <div class="row between">
+    <h2 style="margin:0" id="c-title">Cartes</h2>
+    <label class="toggle" for="opt-dir"><input type="checkbox" id="opt-dir"> Commencer par le français</label>
+  </div>
+  <div class="progress" id="c-progress"></div>
+  <div id="c-area">
+    <div class="card" id="card" tabindex="0" role="button" aria-label="Retourner la carte"></div>
+    <div class="row center" style="margin-top:12px" id="c-actions">
+      <button class="btn bad" id="c-again">À revoir</button>
+      <button class="btn good" id="c-know">Je savais</button>
+    </div>
+  </div>
+  <div class="done" id="c-done" hidden></div>
+</section>
+
+<!-- ============ EXERCICES ============ -->
+<section id="view-ex" hidden>
+  <div id="ex-menu">
+    <h2>Exercices</h2>
+    <p class="muted" style="margin-top:-4px" id="ex-scope"></p>
+    <div class="ex-grid">
+      <button class="cat" style="--c:#e0561b" data-ex="qcm"><strong>Choisir la bonne traduction</strong><p>10 questions à choix multiple. Le plus facile pour démarrer.</p></button>
+      <button class="cat" style="--c:var(--rose)" data-ex="write"><strong>Écrire en darija</strong><p>8 phrases à taper soi-même. Les petites fautes d'orthographe sont acceptées.</p></button>
+      <button class="cat" style="--c:#e8901a" data-ex="order"><strong>Construire la phrase</strong><p>6 phrases à remettre dans l'ordre, mot par mot.</p></button>
+      <button class="cat" style="--c:#c0262d" data-ex="conj"><strong>Conjuguer</strong><p>10 formes à trouver sur les verbes les plus courants.</p></button>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <label class="toggle" for="opt-qdir"><input type="checkbox" id="opt-qdir"> Choix multiple : du français vers le darija</label>
+    </div>
+  </div>
+  <div id="ex-run" hidden>
+    <div class="row between"><h2 style="margin:0" id="ex-title"></h2><button class="btn sm" id="ex-quit">Arrêter</button></div>
+    <div class="progress" id="ex-progress"></div>
+    <div id="ex-body"></div>
+    <div class="row" style="margin-top:12px;justify-content:flex-end"><button class="btn primary" id="ex-next" hidden>Suivante</button></div>
+  </div>
+  <div class="done" id="ex-done" hidden></div>
+</section>
+
+<!-- ============ CONJUGAISON ============ -->
+<section id="view-conj" hidden>
+  <h2>Conjugaison</h2>
+  <p class="muted" style="margin-top:-4px">Bonne nouvelle : en darija, trois temps suffisent pour presque tout dire. Choisis un verbe.</p>
+  <div class="verbs" id="verbs"></div>
+  <div class="panel" style="margin-bottom:12px">
+    <div class="row between">
+      <div><span class="lat" style="font-size:1.6rem" id="v-lat"></span> <span class="arb" style="font-size:1.3rem" id="v-ar"></span></div>
+      <span class="chip" id="v-score"></span>
+    </div>
+    <div class="fr" style="font-size:1.05rem" id="v-fr"></div>
+    <div class="note" id="v-note"></div>
+  </div>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Pronom</th><th>Passé</th><th>Présent</th><th>Futur</th></tr></thead>
+      <tbody id="v-rows"></tbody>
+    </table>
+  </div>
+  <div class="panel" style="margin-top:12px" id="v-extra"></div>
+  <div class="row" style="margin-top:12px"><button class="btn primary" id="v-train">M'entraîner sur ce verbe</button></div>
+  <div class="tip">
+    <b>Les 4 règles à retenir</b>
+    <ul>
+      <li><b>Passé</b> : des terminaisons. -t (je), -ti (tu), rien (il), -at (elle), -na (nous), -tou (vous), -ou (ils).</li>
+      <li><b>Présent</b> : <i>ka</i> + le verbe. <i>kan</i>- (je), <i>kat</i>- (tu, elle), <i>kay</i>- (il). Au féminin « tu », on ajoute -i ; au pluriel, -ou.</li>
+      <li><b>Futur</b> : <i>ghadi</i> + le présent sans <i>ka</i>. <i>Kanakol</i> devient <i>ghadi nakol</i>.</li>
+      <li><b>Négation</b> : <i>ma</i> … <i>ch</i> autour du verbe. <i>Klit</i> devient <i>ma klitch</i>.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ PROGRES ============ -->
+<section id="view-prog" hidden>
+  <h2>Ta progression</h2>
+
+  <div class="panel sync" id="sync-panel" hidden>
+    <div class="row between" style="align-items:center">
+      <b>Sauvegarde en ligne</b>
+      <span class="chip" id="sync-state">Hors ligne</span>
+    </div>
+    <p class="small muted" id="sync-msg" style="margin:6px 0 0">Crée un compte pour retrouver ta progression sur tous tes appareils.</p>
+    <form id="sync-form" class="sync-form">
+      <input type="email" id="sync-email" autocomplete="email" placeholder="Adresse e-mail" aria-label="Adresse e-mail">
+      <input type="password" id="sync-pass" autocomplete="current-password" placeholder="Mot de passe" aria-label="Mot de passe">
+      <div class="row">
+        <button class="btn primary" type="submit" id="sync-in">Se connecter</button>
+        <button class="btn" type="button" id="sync-up">Créer un compte</button>
+      </div>
+    </form>
+    <div class="row" id="sync-out-row" hidden><button class="btn" type="button" id="sync-out">Se déconnecter</button></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat" style="--c:var(--mint)"><b id="p-known">0</b><span>expressions maîtrisées sur <span id="p-total">0</span></span></div>
+    <div class="stat" style="--c:var(--accent)"><b id="p-rate">–</b><span>de bonnes réponses sur 7 jours</span></div>
+    <div class="stat" style="--c:var(--rose)"><b id="p-streak">0</b><span>jours d'affilée</span></div>
+  </div>
+
+  <h3>Ton parcours</h3>
+  <div class="lvl" id="p-levels"></div>
+
+  <h3>Les 14 derniers jours</h3>
+  <div class="panel chart"><div id="p-chart"></div>
+    <div class="legend"><span><i style="background:var(--accent)"></i>Bonnes réponses</span><span><i style="background:var(--soft)"></i>Erreurs</span></div>
+  </div>
+
+  <h3>Par thème</h3>
+  <div class="list" id="p-cats"></div>
+  <div class="legend"><span>Couleur pleine : maîtrisé (3 bonnes réponses de suite)</span><span>Couleur claire : en cours</span><span>Gris : pas encore vu</span></div>
+
+  <h3>Conjugaison</h3>
+  <div class="list" id="p-verbs"></div>
+
+  <h3>À retravailler en priorité</h3>
+  <div id="p-weak"></div>
+
+  <div class="row" style="margin-top:22px">
+    <button class="btn sm" id="reset">Remettre la progression à zéro</button>
+  </div>
+  <div id="confirm-reset" class="tip" hidden>
+    Effacer toute la progression enregistrée sur cet appareil ?
+    <div class="row" style="margin-top:8px">
+      <button class="btn bad" id="reset-yes">Oui, effacer</button>
+      <button class="btn" id="reset-no">Annuler</button>
+    </div>
+  </div>
+  <p class="small muted">La progression est enregistrée dans ce navigateur, sur cet appareil uniquement.</p>
+</section>
+
+<!-- ============ METHODE ============ -->
+<section id="view-guide" hidden>
+  <h2>La routine qui marche</h2>
+  <ol class="steps">
+    <li><b>Tous les jours, 10 minutes</b><span>Une série de cartes, puis un exercice. Mieux vaut 10 minutes chaque jour qu'une heure le dimanche.</span></li>
+    <li><b>Dire à voix haute</b><span>Prononce chaque carte avant de la retourner. Le darija se parle bien plus qu'il ne s'écrit.</span></li>
+    <li><b>Réutiliser le jour même</b><span>Choisis 2 expressions de la séance et place-les à la maison avant le soir.</span></li>
+    <li><b>Un moment « darija seulement »</b><span>Chaque semaine, 15 minutes sans français, par exemple pendant un repas. On mime, on montre du doigt, on rit.</span></li>
+  </ol>
+
+  <h3>Lire le darija en lettres latines</h3>
+  <p class="muted small">Au Maroc, on écrit souvent le darija avec l'alphabet latin et des chiffres pour les sons qui n'existent pas en français.</p>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Écrit</th><th>Arabe</th><th>Comment le dire</th><th>Exemple</th></tr></thead>
+    <tbody id="pron-rows"></tbody>
+  </table>
+  </div>
+  <div class="tip"><b>Astuce :</b> le darija « avale » beaucoup de voyelles. <i>Bghit</i> se dit presque en une syllabe. Fais-toi répéter les mots par quelqu'un de la famille : rien ne remplace l'oreille.</div>
+</section>
+</div>
+
+<script>
+/* ================= CONTENU ================= */
+const CAT_COLORS = {salut:"#e0561b",poli:"#e8901a",quest:"#c99a06",fam:"#d6336c",food:"#c0262d",jour:"#5f9e12",num:"#9a4a14",expr:"#9c2a6b",maison:"#a0522d",ville:"#7d8c1c",temps:"#2b8a8a",fete:"#8c3fa8",sent:"#d1495b"};
+const CATS = {
+  salut:"Salutations", poli:"Politesse", quest:"Questions", fam:"Famille",
+  food:"À table", maison:"À la maison", ville:"Dehors", temps:"Temps qui passe",
+  jour:"Au quotidien", num:"Chiffres", fete:"Fêtes et famille", sent:"Sentiments", expr:"Expressions"
+};
+// [catégorie, darija latin, arabe, français, note]
+const DATA = [
+ ["salut","Salam","سلام","Salut / Bonjour",""],
+ ["salut","Salam 3likoum","السلام عليكم","Bonjour (formule respectueuse)","Réponse : Wa 3likoum salam"],
+ ["salut","Sbah lkhir","صباح الخير","Bonjour (le matin)","Réponse : Sbah nnour"],
+ ["salut","Msa lkhir","مسا الخير","Bonsoir",""],
+ ["salut","Labas ?","لاباس؟","Ça va ?",""],
+ ["salut","Labas, l7amdoulillah","لاباس، الحمد لله","Ça va, Dieu merci","La réponse réflexe, même quand ça va moyen"],
+ ["salut","Kidayr ?","كيداير؟","Comment tu vas ? (à un homme)","À une femme : Kidayra ?"],
+ ["salut","Bslama","بسلامة","Au revoir",""],
+ ["salut","Tsb7 3la khir","تصبح على خير","Bonne nuit","À une femme : Tsb7i 3la khir"],
+ ["salut","Mr7ba","مرحبا","Bienvenue","Aussi : avec plaisir"],
+ ["poli","3afak","عافاك","S'il te plaît",""],
+ ["poli","Choukran","شكرا","Merci",""],
+ ["poli","Bla jmil","بلا جميل","De rien",""],
+ ["poli","Smh liya","سمح ليا","Pardon / Excuse-moi",""],
+ ["poli","Wakha","واخا","D'accord","Le mot qu'on entend toutes les deux minutes"],
+ ["poli","Iyeh","إيه","Oui",""],
+ ["poli","La","لا","Non",""],
+ ["poli","Machi mouchkil","ماشي مشكل","Pas de problème",""],
+ ["poli","Allah y3tik sse7a","الله يعطيك الصحة","Merci (pour un effort, un travail)","Litt. que Dieu te donne la santé"],
+ ["poli","Allah ykhlik","الله يخليك","S'il te plaît (insistant)","Litt. que Dieu te garde"],
+ ["quest","Chno ?","شنو؟","Quoi ?",""],
+ ["quest","Fin ?","فين؟","Où ?",""],
+ ["quest","Imta ?","إمتى؟","Quand ?",""],
+ ["quest","3lach ?","علاش؟","Pourquoi ?",""],
+ ["quest","Chkoun ?","شكون؟","Qui ?",""],
+ ["quest","Kifach ?","كيفاش؟","Comment ?",""],
+ ["quest","Ch7al ?","شحال؟","Combien ?",""],
+ ["quest","Bch7al ?","بشحال؟","C'est combien ? (prix)","Indispensable au souk"],
+ ["quest","Ach smitek ?","أش سميتك؟","Comment tu t'appelles ?",""],
+ ["quest","Smiti …","سميتي …","Je m'appelle …",""],
+ ["quest","Wach fhmti ?","واش فهمتي؟","Tu as compris ?","Wach transforme une phrase en question"],
+ ["fam","Mmi","مّي","Ma mère",""],
+ ["fam","Bba","بّا","Mon père",""],
+ ["fam","Khouya","خويا","Mon frère",""],
+ ["fam","Khti","ختي","Ma sœur",""],
+ ["fam","Rajli","راجلي","Mon mari",""],
+ ["fam","Mrati","مراتي","Ma femme",""],
+ ["fam","Wldi","ولدي","Mon fils",""],
+ ["fam","Bnti","بنتي","Ma fille",""],
+ ["fam","Jddi","جدي","Mon grand-père",""],
+ ["fam","Jddti","جدتي","Ma grand-mère",""],
+ ["fam","3mmi","عمي","Mon oncle (côté père)",""],
+ ["fam","Khali","خالي","Mon oncle (côté mère)",""],
+ ["fam","L3a2ila","العائلة","La famille",""],
+ ["food","Lma","الما","L'eau",""],
+ ["food","Atay","أتاي","Le thé",""],
+ ["food","Lqhwa","القهوة","Le café",""],
+ ["food","Lkhobz","الخبز","Le pain",""],
+ ["food","L7lib","الحليب","Le lait",""],
+ ["food","Lle7m","اللحم","La viande",""],
+ ["food","Djaj","دجاج","Le poulet",""],
+ ["food","L7out","الحوت","Le poisson",""],
+ ["food","Lkhodra","الخضرة","Les légumes",""],
+ ["food","Sskkar","السكر","Le sucre",""],
+ ["food","Bnin","بنين","Délicieux",""],
+ ["food","Ana ji3an","أنا جيعان","J'ai faim","Au féminin : Ana ji3ana"],
+ ["food","Chb3t","شبعت","Je n'ai plus faim (je suis rassasié·e)","Très utile quand on te ressert pour la 4e fois"],
+ ["food","Bssa7tek","بصحتك","Bon appétit / À ta santé","Aussi pour un nouvel habit ou une coupe de cheveux"],
+ ["jour","Bghit","بغيت","Je veux",""],
+ ["jour","Ma fhmtch","ما فهمتش","Je n'ai pas compris",""],
+ ["jour","Fhmt","فهمت","J'ai compris",""],
+ ["jour","Ma 3rftch","ما عرفتش","Je ne sais pas",""],
+ ["jour","3iyit","عييت","Je suis fatigué·e",""],
+ ["jour","Aji","أجي","Viens !",""],
+ ["jour","Chouf","شوف","Regarde",""],
+ ["jour","Daba","دابا","Maintenant",""],
+ ["jour","Lyoum","اليوم","Aujourd'hui",""],
+ ["jour","Ghdda","غدا","Demain",""],
+ ["jour","Lbar7","البارح","Hier",""],
+ ["jour","Bzzaf","بزاف","Beaucoup",""],
+ ["jour","Chwiya","شوية","Un peu",""],
+ ["jour","Mzyan","مزيان","Bien / Bon",""],
+ ["jour","Zwin","زوين","Beau / Joli",""],
+ ["jour","Skhoun","سخون","Chaud",""],
+ ["jour","Bard","بارد","Froid",""],
+ ["num","Wa7d","واحد","1",""],
+ ["num","Jouj","جوج","2",""],
+ ["num","Tlata","تلاتة","3",""],
+ ["num","Rb3a","ربعة","4",""],
+ ["num","Khmsa","خمسة","5",""],
+ ["num","Stta","ستة","6",""],
+ ["num","Sb3a","سبعة","7",""],
+ ["num","Tmnya","تمنية","8",""],
+ ["num","Ts3oud","تسعود","9",""],
+ ["num","3chra","عشرة","10",""],
+ ["num","3chrin","عشرين","20",""],
+ ["num","Mya","مية","100",""],
+ ["expr","Inchallah","إن شاء الله","Si Dieu le veut",""],
+ ["expr","L7amdoulillah","الحمد لله","Dieu merci",""],
+ ["expr","Safi","صافي","C'est bon / Ça suffit","Aussi pour clore une discussion"],
+ ["expr","Yallah","يالله","Allez ! / On y va",""],
+ ["expr","Zid","زيد","Encore / Continue",""],
+ ["expr","Ma3lich","معليش","Ce n'est pas grave",""],
+ ["expr","7chouma","حشومة","Ça ne se fait pas / C'est la honte",""],
+ ["expr","Tbarkallah","تبارك الله","Bravo / Que c'est beau","Pour complimenter sans porter l'œil"],
+ ["expr","Mabrouk","مبروك","Félicitations",""],
+ ["expr","Hadchi zwin","هادشي زوين","C'est beau / C'est chouette",""],
+ ["salut","Thlla f rasek","تهلا فراسك","Prends soin de toi","À plusieurs : Thllaw f raskoum"],
+ ["salut","Kif dayr l7al ?","كيف داير الحال؟","Comment ça se passe ?",""],
+ ["salut","Kolchi mzyan ?","كلشي مزيان؟","Tout va bien ?",""],
+ ["salut","Allah ysahel","الله يسهل","Que Dieu facilite","Sert aussi à décliner poliment un vendeur"],
+ ["poli","3afak khti","عافاك ختي","S'il te plaît (à une femme)","À un homme : 3afak khouya"],
+ ["poli","Mn fadlek","من فضلك","S'il vous plaît (plus formel)",""],
+ ["poli","Tfeddel","تفضل","Je t'en prie / Sers-toi","À une femme : Tfeddli ; à plusieurs : Tfeddlou"],
+ ["poli","Ma 3endich mouchkil","ما عنديش مشكل","Ça ne me dérange pas",""],
+ ["poli","Bghit nsowlek","بغيت نسولك","Je voudrais te demander",""],
+ ["quest","Wach kayn … ?","واش كاين …؟","Est-ce qu'il y a … ?","Au féminin : Wach kayna"],
+ ["quest","Ach kayn ?","أش كاين؟","Qu'est-ce qu'il y a ?",""],
+ ["quest","Fin kayn … ?","فين كاين …؟","Où se trouve … ?",""],
+ ["quest","Chkoun hada ?","شكون هادا؟","Qui est-ce ?","Pour une femme : Chkoun hadi ?"],
+ ["quest","Mnin nta ?","منين نتا؟","Tu viens d'où ?","À une femme : Mnin nti ?"],
+ ["quest","Ch7al f 3morek ?","شحال فعمرك؟","Quel âge as-tu ?",""],
+ ["quest","Wach 3endek … ?","واش عندك …؟","Est-ce que tu as … ?",""],
+ ["quest","Ch7al men wa7d ?","شحال من واحد؟","Combien de personnes ?",""],
+ ["fam","Nsibi","نسيبي","Mon beau-frère","Nsab : la belle-famille en général"],
+ ["fam","3mti","عمتي","Ma tante (côté père)",""],
+ ["fam","Khalti","خالتي","Ma tante (côté mère)","Sert aussi à s'adresser poliment à une femme plus âgée"],
+ ["fam","Weld 3mmi","ولد عمي","Mon cousin (côté père)",""],
+ ["fam","Drari","دراري","Les enfants / les jeunes",""],
+ ["fam","Lwalidin","الوالدين","Les parents",""],
+ ["fam","7mati","حماتي","Ma belle-mère","Mon beau-père : 7ma"],
+ ["fam","Darna","دارنا","Chez nous",""],
+ ["food","Tajin","طاجين","Le tajine",""],
+ ["food","Seksou","سكسو","Le couscous","Le plat du vendredi"],
+ ["food","7rira","حريرة","La harira (soupe)",""],
+ ["food","Msemmen","مسمن","La crêpe feuilletée",""],
+ ["food","Zit","زيت","L'huile",""],
+ ["food","Lmel7","الملح","Le sel",""],
+ ["food","Lbid","البيض","Les œufs",""],
+ ["food","Lfakya","الفاكية","Les fruits",""],
+ ["food","Lma3oun","الماعون","L'assiette",""],
+ ["food","Lka2s","الكاس","Le verre",""],
+ ["food","Ri7a bnina","ريحة بنينة","Ça sent bon",""],
+ ["food","Zid chwiya","زيد شوية","Ressers-moi un peu",""],
+ ["food","Baraka 3liya","بركا عليا","Ça suffit pour moi, merci","La phrase à connaître quand on te ressert"],
+ ["food","Ana 3tchan","أنا عطشان","J'ai soif","Au féminin : Ana 3tchana"],
+ ["food","Skhoun bzzaf","سخون بزاف","C'est trop chaud",""],
+ ["maison","Ddar","الدار","La maison",""],
+ ["maison","Lbit","البيت","La chambre",""],
+ ["maison","Lkoujina","الكوجينة","La cuisine",""],
+ ["maison","Bit lma","بيت الما","La salle de bain / les toilettes",""],
+ ["maison","Ssala","الصالة","Le salon",""],
+ ["maison","Ttabla","الطابلة","La table",""],
+ ["maison","Lkorsi","الكرسي","La chaise",""],
+ ["maison","Lferch","الفراش","Le lit",""],
+ ["maison","Lbab","الباب","La porte",""],
+ ["maison","Sserjem","السرجم","La fenêtre",""],
+ ["maison","Ddow","الضو","La lumière",""],
+ ["maison","Sarout","ساروت","La clé",""],
+ ["maison","Tilifoun","تيليفون","Le téléphone",""],
+ ["maison","Lflous","الفلوس","L'argent",""],
+ ["maison","Nqi","نقي","Propre",""],
+ ["maison","Mwessekh","موسخ","Sale",""],
+ ["ville","Ssouk","السوق","Le marché",""],
+ ["ville","L7anout","الحانوت","L'épicerie du quartier",""],
+ ["ville","Ttobis","الطوبيس","Le bus",""],
+ ["ville","Ttran","الطران","Le train",""],
+ ["ville","Ttaxi","الطاكسي","Le taxi","Petit taxi en ville, grand taxi entre villes"],
+ ["ville","Zzanqa","الزنقة","La rue",""],
+ ["ville","Ttriq","الطريق","La route",""],
+ ["ville","Lmdina","المدينة","La ville / la médina",""],
+ ["ville","L7mmam","الحمام","Le hammam",""],
+ ["ville","Lbanka","البانكا","La banque",""],
+ ["ville","Lmat3am","المطعم","Le restaurant",""],
+ ["ville","Lmdrasa","المدرسة","L'école",""],
+ ["ville","Lkhdma","الخدمة","Le travail",""],
+ ["ville","Jjame3","الجامع","La mosquée",""],
+ ["ville","Limen","ليمن","À droite",""],
+ ["ville","Liser","ليسر","À gauche",""],
+ ["ville","Nichan","نيشان","Tout droit",""],
+ ["ville","Hna","هنا","Ici",""],
+ ["ville","Temma","تما","Là-bas",""],
+ ["ville","Wqef hna 3afak","وقف هنا عافاك","Arrête-toi ici, s'il te plaît","À dire au taxi"],
+ ["temps","Sba7","الصباح","Le matin",""],
+ ["temps","L3chiya","العشية","L'après-midi / le soir",""],
+ ["temps","Llil","الليل","La nuit",""],
+ ["temps","Ssimana","السيمانة","La semaine",""],
+ ["temps","Chher","الشهر","Le mois",""],
+ ["temps","L3am","العام","L'année",""],
+ ["temps","Ssa3a","الساعة","L'heure",""],
+ ["temps","Daba daba","دابا دابا","Tout de suite",""],
+ ["temps","Mn b3d","من بعد","Plus tard / à plus tard",""],
+ ["temps","Dima","ديما","Toujours",""],
+ ["temps","3emmer","عمر","Jamais","S'emploie avec la négation : 3emmerni ma mchit"],
+ ["temps","Mrra mrra","مرة مرة","De temps en temps",""],
+ ["temps","Kol youm","كل يوم","Tous les jours",""],
+ ["temps","Ch7al hadi ?","شحال هادي؟","Ça fait combien de temps ?",""],
+ ["temps","Chta","الشتا","La pluie",""],
+ ["temps","Chems","الشمس","Le soleil",""],
+ ["temps","Rri7","الريح","Le vent",""],
+ ["temps","Lberd","البرد","Le froid",""],
+ ["temps","Sshd","الصهد","La chaleur",""],
+ ["temps","L7al zwin lyoum","الحال زوين اليوم","Il fait beau aujourd'hui",""],
+ ["fete","3id mabrouk","عيد مبروك","Bonne fête","Pour l'Aïd"],
+ ["fete","3wachr mbarka","عواشر مباركة","Bonnes fêtes de l'Aïd",""],
+ ["fete","Ramdan mabrouk","رمضان مبارك","Bon Ramadan",""],
+ ["fete","Allah ybarek f 3morek","الله يبارك فعمرك","Bon anniversaire","Litt. que Dieu bénisse ta vie"],
+ ["fete","3qbal 3andek","عقبال عندك","À ton tour !","Se dit à un célibataire pendant un mariage"],
+ ["fete","Mbrouk l3rs","مبروك العرس","Félicitations pour le mariage",""],
+ ["fete","Allah yr7mou","الله يرحمو","Paix à son âme","Pour un homme. Pour une femme : Allah yr7emha"],
+ ["fete","L baraka f rasek","البركة فراسك","Mes condoléances",""],
+ ["fete","Bsse7a w rra7a","بالصحة والراحة","Profite bien !","Après un hammam, un repas ou une coupe de cheveux"],
+ ["fete","Allah ykhlef","الله يخلف","Que Dieu te le rende","Remerciement pour un cadeau ou un service"],
+ ["fete","Allah ybarek fik","الله يبارك فيك","Merci, que Dieu te bénisse","La réponse à Tbarkallah ou Mabrouk"],
+ ["fete","Hamdoullah 3la ssalama","الحمد لله على السلامة","Content de te voir arrivé·e","À l'arrivée d'un voyage"],
+ ["fete","Allah yjib lli fih lkhir","الله يجيب اللي فيه الخير","Que Dieu fasse pour le mieux",""],
+ ["sent","Fer7an","فرحان","Content","Au féminin : Fer7ana"],
+ ["sent","Mabsout","مبسوط","Heureux / satisfait","Au féminin : Mabsouta"],
+ ["sent","Mqelleq","مقلق","Contrarié","Au féminin : Mqellqa"],
+ ["sent","Ghadban","غضبان","Fâché","Au féminin : Ghadbana"],
+ ["sent","Khayf","خايف","Qui a peur","Au féminin : Khayfa"],
+ ["sent","Ana hani","أنا هاني","Je suis tranquille",""],
+ ["sent","Twe7echtek","توحشتك","Tu me manques",""],
+ ["sent","Kanbghik","كنبغيك","Je t'aime",""],
+ ["sent","Kanbghik bzzaf","كنبغيك بزاف","Je t'aime beaucoup",""],
+ ["sent","3jebni","عجبني","Ça m'a plu",""],
+ ["sent","Ma 3jebnich","ما عجبنيش","Ça ne m'a pas plu",""],
+ ["sent","Dhektini","ضحكتيني","Tu m'as fait rire",""],
+ ["sent","Rani fer7an bik","راني فرحان بيك","Je suis fier de toi","Au féminin : Rani fer7ana bik"],
+ ["jour","3awd 3afak","عاود عافاك","Répète s'il te plaît",""],
+ ["jour","Hder bchwiya","هدر بشوية","Parle plus lentement",""],
+ ["jour","Bchwiya","بشوية","Doucement / lentement",""],
+ ["jour","Weqila","وقيلا","Peut-être",""],
+ ["jour","Makayn walou","ما كاين والو","Il n'y a rien",""],
+ ["jour","Kbir","كبير","Grand",""],
+ ["jour","Sghir","صغير","Petit",""],
+ ["jour","Jdid","جديد","Neuf / nouveau",""],
+ ["jour","Qdim","قديم","Vieux / ancien",""],
+ ["jour","Qrib","قريب","Proche",""],
+ ["jour","B3id","بعيد","Loin",""],
+ ["jour","Ghali","غالي","Cher (prix)",""],
+ ["jour","Rkhis","رخيص","Pas cher",""],
+ ["jour","Sahl","ساهل","Facile",""],
+ ["jour","S3ib","صعيب","Difficile",""],
+ ["jour","Wa3r","واعر","Dur, ou génial","Le sens dépend du ton : difficile, ou impressionnant"],
+ ["num","Tlatin","تلاتين","30",""],
+ ["num","Rb3in","ربعين","40",""],
+ ["num","Khmsin","خمسين","50",""],
+ ["num","Sttin","ستين","60",""],
+ ["num","Sb3in","سبعين","70",""],
+ ["num","Tmanin","تمانين","80",""],
+ ["num","Ts3in","تسعين","90",""],
+ ["num","Alf","ألف","1000",""],
+ ["num","Noss","نص","Demi","Noss sa3a = une demi-heure"],
+ ["num","Lewwel","الأول","Premier",""],
+ ["num","Derham","درهم","Dirham","La monnaie. 3chrin derham = 20 dirhams"],
+ ["expr","Bismillah","بسم الله","Au nom de Dieu","Avant de manger, de monter en voiture, de commencer"],
+ ["expr","Machallah","ما شاء الله","Que Dieu l'a voulu","Compliment admiratif, comme Tbarkallah"],
+ ["expr","Chwiya b chwiya","شوية بشوية","Petit à petit","Le nom de cette application"],
+ ["expr","Had chi li kayn","هادشي لي كاين","C'est comme ça","Litt. c'est ce qu'il y a"],
+ ["expr","Dir niya","دير النية","Fais confiance",""],
+ ["expr","Wa3lach la","واعلاش لا","Pourquoi pas",""],
+ ["expr","Allah ysehhel 3lik","الله يسهل عليك","Que Dieu te facilite les choses",""],
+ ["expr","Nchoufek mn b3d","نشوفك من بعد","On se voit plus tard",""]
+].map((r,i)=>({id:i,cat:r[0],lat:r[1],ar:r[2],fr:r[3],note:r[4]}));
+
+const PRONOUNS = [
+ ["ana","je"],["nta","tu (homme)"],["nti","tu (femme)"],["houwa","il"],
+ ["hiya","elle"],["7na","nous"],["ntouma","vous"],["houma","ils / elles"]
+];
+// passé et présent dans l'ordre des pronoms ; impératif : à un homme, à une femme, à plusieurs
+const VERBS = [
+ {k:"kla",lat:"Kla",ar:"كلا",fr:"manger",
+  past:["klit","kliti","kliti","kla","klat","klina","klitou","klaw"],
+  pres:["kanakol","katakol","katakli","kayakol","katakol","kanaklou","kataklou","kayaklou"],
+  imp:["koul","kouli","koulou"]},
+ {k:"chreb",lat:"Chreb",ar:"شرب",fr:"boire",
+  past:["chrebt","chrebti","chrebti","chreb","chrbat","chrebna","chrebtou","chrbou"],
+  pres:["kanchreb","katchreb","katchrbi","kaychreb","katchreb","kanchrbou","katchrbou","kaychrbou"],
+  imp:["chreb","chrbi","chrbou"]},
+ {k:"mcha",lat:"Mcha",ar:"مشى",fr:"aller / partir",
+  past:["mchit","mchiti","mchiti","mcha","mchat","mchina","mchitou","mchaw"],
+  pres:["kanmchi","katmchi","katmchi","kaymchi","katmchi","kanmchiw","katmchiw","kaymchiw"],
+  imp:["sir","siri","siriw"], note:"À l'impératif, on utilise un autre verbe : sir (va !)."},
+ {k:"ja",lat:"Ja",ar:"جا",fr:"venir",
+  past:["jit","jiti","jiti","ja","jat","jina","jitou","jaw"],
+  pres:["kanji","katji","katji","kayji","katji","kanjiw","katjiw","kayjiw"],
+  imp:["aji","aji","ajiw"]},
+ {k:"bgha",lat:"Bgha",ar:"بغى",fr:"vouloir / aimer",
+  past:["bghit","bghiti","bghiti","bgha","bghat","bghina","bghitou","bghaw"],
+  pres:["kanbghi","katbghi","katbghi","kaybghi","katbghi","kanbghiw","katbghiw","kaybghiw"],
+  imp:null, note:"Bghit (passé) s'utilise pour dire « je veux » maintenant. Kanbghik = je t'aime."},
+ {k:"dar",lat:"Dar",ar:"دار",fr:"faire",
+  past:["dert","derti","derti","dar","darat","derna","dertou","darou"],
+  pres:["kandir","katdir","katdiri","kaydir","katdir","kandirou","katdirou","kaydirou"],
+  imp:["dir","diri","dirou"]},
+ {k:"fhem",lat:"Fhem",ar:"فهم",fr:"comprendre",
+  past:["fhemt","fhemti","fhemti","fhem","fhmat","fhemna","fhemtou","fhmou"],
+  pres:["kanfhem","katfhem","katfhmi","kayfhem","katfhem","kanfhmou","katfhmou","kayfhmou"],
+  imp:["fhem","fhmi","fhmou"]},
+ {k:"3ref",lat:"3ref",ar:"عرف",fr:"savoir / connaître",
+  past:["3reft","3refti","3refti","3ref","3rfat","3refna","3reftou","3rfou"],
+  pres:["kan3ref","kat3ref","kat3rfi","kay3ref","kat3ref","kan3rfou","kat3rfou","kay3rfou"],
+  imp:null},
+ {k:"chaf",lat:"Chaf",ar:"شاف",fr:"voir",
+  past:["chft","chfti","chfti","chaf","chafat","chfna","chftou","chafou"],
+  pres:["kanchouf","katchouf","katchoufi","kaychouf","katchouf","kanchoufou","katchoufou","kaychoufou"],
+  imp:["chouf","choufi","choufou"]},
+ {k:"n3es",lat:"N3es",ar:"نعس",fr:"dormir",
+  past:["n3est","n3esti","n3esti","n3es","n3sat","n3esna","n3estou","n3sou"],
+  pres:["kann3es","katn3es","katn3si","kayn3es","katn3es","kann3sou","katn3sou","kayn3sou"],
+  imp:["n3es","n3si","n3sou"]},
+ {k:"khdem",lat:"Khdem",ar:"خدم",fr:"travailler",
+  past:["khdemt","khdemti","khdemti","khdem","khdmat","khdemna","khdemtou","khdmou"],
+  pres:["kankhdem","katkhdem","katkhdmi","kaykhdem","katkhdem","kankhdmou","katkhdmou","kaykhdmou"],
+  imp:["khdem","khdmi","khdmou"]},
+ {k:"kan",lat:"Kan",ar:"كان",fr:"être",
+  past:["kont","konti","konti","kan","kanet","konna","kontou","kanou"],
+  pres:["kankoun","katkoun","katkouni","kaykoun","katkoun","kankounou","katkounou","kaykounou"],
+  imp:["koun","kouni","kounou"], note:"Au présent, on n'utilise en général pas de verbe « être » : Ana 3iyana = je suis fatiguée. Kankoun veut dire « je suis (d'habitude) »."},
+ {k:"gal",lat:"Gal",ar:"قال",fr:"dire",
+  past:["golt","golti","golti","gal","galet","golna","goltou","galou"],
+  pres:["kangoul","katgoul","katgouli","kaygoul","katgoul","kangoulou","katgoulou","kaygoulou"],
+  imp:["goul","gouli","goulou"], note:"Golt lik = je t'ai dit. Très fréquent à l'oral."},
+ {k:"sme3",lat:"Sme3",ar:"سمع",fr:"entendre / écouter",
+  past:["sme3t","sme3ti","sme3ti","sme3","sem3at","sme3na","sme3tou","sem3ou"],
+  pres:["kansme3","katsme3","katsem3i","kaysme3","katsme3","kansem3ou","katsem3ou","kaysem3ou"],
+  imp:["sme3","sem3i","sem3ou"]},
+ {k:"tkellem",lat:"Tkellem",ar:"تكلم",fr:"parler",
+  past:["tkellemt","tkellemti","tkellemti","tkellem","tkellmat","tkellemna","tkellemtou","tkellmou"],
+  pres:["kantkellem","kattkellem","kattkellmi","kaytkellem","kattkellem","kantkellmou","kattkellmou","kaytkellmou"],
+  imp:["tkellem","tkellmi","tkellmou"], note:"On dit aussi Hder (هدر) pour parler, discuter."},
+ {k:"3ta",lat:"3ta",ar:"عطى",fr:"donner",
+  past:["3tit","3titi","3titi","3ta","3tat","3tina","3titou","3taw"],
+  pres:["kan3ti","kat3ti","kat3ti","kay3ti","kat3ti","kan3tiw","kat3tiw","kay3tiw"],
+  imp:["3ti","3ti","3tiw"], note:"3tini = donne-moi. Une des phrases les plus utiles au souk."},
+ {k:"khda",lat:"Khda",ar:"خدا",fr:"prendre",
+  past:["khdit","khditi","khditi","khda","khdat","khdina","khditou","khdaw"],
+  pres:["kanakhod","katakhod","katakhdi","kayakhod","katakhod","kanakhdou","katakhdou","kayakhdou"],
+  imp:["khoud","khoudi","khoudou"]},
+ {k:"chra",lat:"Chra",ar:"شرا",fr:"acheter",
+  past:["chrit","chriti","chriti","chra","chrat","chrina","chritou","chraw"],
+  pres:["kanchri","katchri","katchri","kaychri","katchri","kanchriw","katchriw","kaychriw"],
+  imp:["chri","chri","chriw"], note:"Ne pas confondre avec Chreb (boire) : une seule lettre les sépare."},
+ {k:"qra",lat:"Qra",ar:"قرا",fr:"lire / étudier",
+  past:["qrit","qriti","qriti","qra","qrat","qrina","qritou","qraw"],
+  pres:["kanqra","katqra","katqray","kayqra","katqra","kanqraw","katqraw","kayqraw"],
+  imp:["qra","qray","qraw"], note:"Le même verbe sert pour lire et pour faire des études."},
+ {k:"kteb",lat:"Kteb",ar:"كتب",fr:"écrire",
+  past:["ktebt","ktebti","ktebti","kteb","ketbat","ktebna","ktebtou","ketbou"],
+  pres:["kankteb","katkteb","katketbi","kaykteb","katkteb","kanketbou","katketbou","kayketbou"],
+  imp:["kteb","ketbi","ketbou"]},
+ {k:"3awen",lat:"3awen",ar:"عاون",fr:"aider",
+  past:["3awent","3awenti","3awenti","3awen","3awnat","3awenna","3awentou","3awnou"],
+  pres:["kan3awen","kat3awen","kat3awni","kay3awen","kat3awen","kan3awnou","kat3awnou","kay3awnou"],
+  imp:["3awenni","3awnini","3awnouni"], note:"L'impératif donné ici veut dire « aide-moi »."},
+ {k:"nsa",lat:"Nsa",ar:"نسى",fr:"oublier",
+  past:["nsit","nsiti","nsiti","nsa","nsat","nsina","nsitou","nsaw"],
+  pres:["kannsa","katnsa","katnsay","kaynsa","katnsa","kannsaw","katnsaw","kaynsaw"],
+  imp:null, note:"On l'emploie surtout au négatif : Ma tnsach = n'oublie pas."},
+ {k:"rje3",lat:"Rje3",ar:"رجع",fr:"revenir / rentrer",
+  past:["rje3t","rje3ti","rje3ti","rje3","rej3at","rje3na","rje3tou","rej3ou"],
+  pres:["kanrje3","katrje3","katrej3i","kayrje3","katrje3","kanrej3ou","katrej3ou","kayrej3ou"],
+  imp:["rje3","rej3i","rej3ou"]},
+ {k:"skn",lat:"Skn",ar:"سكن",fr:"habiter",
+  past:["sknt","sknti","sknti","skn","sknat","sknna","skntou","sknou"],
+  pres:["kanskon","katskon","katsekni","kayskon","katskon","kanseknou","katseknou","kayseknou"],
+  imp:null, note:"Fin katskon ? = où habites-tu ? Kanskon f Baris = j'habite à Paris."}
+];
+VERBS.forEach(v=>v.fut=v.pres.map(f=>"ghadi "+f.slice(2)));
+const TENSES={past:"au passé",pres:"au présent",fut:"au futur"};
+
+const SENTENCES = [
+ ["Bghit nchreb atay","Je veux boire du thé."],
+ ["Ma fhmtch 3awd 3afak","Je n'ai pas compris, répète s'il te plaît."],
+ ["Bch7al hadi","C'est combien, celle-ci ?"],
+ ["Atay bnin bzzaf","Le thé est très bon."],
+ ["Ana kanbghik bzzaf","Je t'aime beaucoup."],
+ ["Chrebt atay m3a mmi","J'ai bu du thé avec ma mère."],
+ ["Ghdda ghadi nmchiw lsouk","Demain, on va aller au souk."],
+ ["Ma kanfhemch ddarija mzyan","Je ne comprends pas bien le darija."],
+ ["Aji tkoul m3ana","Viens manger avec nous."],
+ ["Khouya kaykhdem f Casa","Mon frère travaille à Casablanca."],
+ ["Chno katdiri lyoum","Qu'est-ce que tu fais aujourd'hui ? (à une femme)"],
+ ["Fin kayn l7mmam","Où est le hammam ?"],
+ ["Ana 3iyana bzzaf lyoum","Je suis très fatiguée aujourd'hui."],
+ ["Wach bghiti lqhwa wla atay","Tu veux du café ou du thé ?"],
+ ["Fin kayn ttobis","Où est le bus ?"],
+ ["Bghit nchri lkhobz","Je veux acheter du pain."],
+ ["3tini lma 3afak","Donne-moi de l'eau, s'il te plaît."],
+ ["Golt lik ma 3rftch","Je t'ai dit que je ne savais pas."],
+ ["Kanskon f Baris","J'habite à Paris."],
+ ["Ma tnsach ssarout","N'oublie pas la clé."],
+ ["Katkellem ddarija mzyan","Tu parles bien le darija."],
+ ["Ghadi nrje3 mn b3d","Je vais rentrer plus tard."],
+ ["Chrit hadchi f ssouk","J'ai acheté ça au marché."],
+ ["3awenni 3afak","Aide-moi, s'il te plaît."],
+ ["L7al bared bzzaf lyoum","Il fait très froid aujourd'hui."],
+ ["Mmi katdir tajin bnin","Ma mère fait un bon tajine."],
+ ["Twe7echtek bzzaf","Tu m'as beaucoup manqué."]
+];
+
+const PRON = [
+ ["3","ع","Un « a » serré qui vient du fond de la gorge","3afak"],
+ ["7","ح","Un « h » soufflé fort, comme pour embuer une vitre","L7out"],
+ ["q","ق","Un « k » prononcé très au fond de la gorge","Lqhwa"],
+ ["kh","خ","Le « j » espagnol de « jota », ou le « ch » allemand de « Bach »","Lkhobz"],
+ ["gh","غ","Un « r » grasseyé à la parisienne","Ghdda"],
+ ["ch","ش","Comme « ch » en français","Chno"],
+ ["2","ء","Un petit arrêt de la voix, comme dans « oh-oh »","L3a2ila"],
+ ["r","ر","Un « r » roulé, comme en espagnol","Rajli"],
+ ["Lettre doublée","ّ","On appuie plus longtemps sur la consonne","Bba, Mmi"]
+];
+
+const LEVELS = [
+ {name:"Survie",desc:"Saluer, remercier, s'excuser.",cats:["salut","poli"]},
+ {name:"Se débrouiller dehors",desc:"Poser des questions, compter, se repérer en ville.",cats:["quest","num","ville"]},
+ {name:"À table et à la maison",desc:"La nourriture, les objets du quotidien, les pièces de la maison.",cats:["food","maison"]},
+ {name:"Vie de famille",desc:"La famille, les sentiments, le temps qui passe, les fêtes et les expressions.",cats:["fam","jour","temps","sent","fete","expr"]},
+ {name:"Faire ses phrases",desc:"Conjuguer les 24 verbes clés et construire des phrases.",verbs:true}
+];
+
+/* ================= ÉTAT (navigateur de cet appareil) ================= */
+const KEY="darija-v1";
+let S={box:{},seen:{},arabic:true,sel:[],log:{},err:{},vb:{},goal:20,ord:{n:0,ok:0}};
+try{const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S,JSON.parse(raw));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+const box=id=>S.box[id]||0;
+const KNOWN=3;
+
+const $=s=>document.querySelector(s);
+const $$=s=>document.querySelectorAll(s);
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const pad=n=>String(n).padStart(2,"0");
+const dkey=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const today=()=>dkey(new Date());
+function pool(){const sel=S.sel.length?S.sel:Object.keys(CATS);return DATA.filter(d=>sel.includes(d.cat));}
+function scopeLabel(){return S.sel.length?S.sel.map(k=>CATS[k]).join(", "):"tous les thèmes";}
+
+// Enregistre une réponse : journal du jour, boîte de révision, erreurs
+function record(ok,{id=null,verb=null,order=false}={}){
+  const t=today(); S.log[t]=S.log[t]||{n:0,ok:0}; S.log[t].n++; if(ok)S.log[t].ok++;
+  if(id!==null){
+    S.seen[id]=1; S.box[id]=ok?Math.min(box(id)+1,5):0;
+    if(!ok) S.err[id]=(S.err[id]||0)+1; else if(S.err[id]) S.err[id]=Math.max(0,S.err[id]-0.5);
+  }
+  if(verb){S.vb[verb]=S.vb[verb]||{n:0,ok:0};S.vb[verb].n++;if(ok)S.vb[verb].ok++;}
+  if(order){S.ord.n++;if(ok)S.ord.ok++;}
+  save();
+}
+
+/* ================= NAVIGATION ================= */
+function show(v){
+  $$("nav button").forEach(b=>b.setAttribute("aria-selected",b.dataset.view===v));
+  ["home","cards","ex","conj","prog","guide"].forEach(n=>$("#view-"+n).hidden=n!==v);
+  const tab=$("#tab-"+v); if(tab) tab.scrollIntoView({block:"nearest",inline:"nearest"});
+  if(v==="home") renderHome();
+  if(v==="cards") startCards();
+  if(v==="ex") exMenu();
+  if(v==="conj") renderVerb();
+  if(v==="prog") renderProg();
+}
+$$("nav button").forEach(b=>b.onclick=()=>show(b.dataset.view));
+
+/* ================= THÈMES ================= */
+function renderGoal(){
+  const n=(S.log[today()]||{n:0}).n, g=S.goal;
+  $("#goal-txt").textContent=`${Math.min(n,999)} / ${g} réponses`;
+  $("#goal-bar").style.width=Math.min(100,n/g*100)+"%";
+  $("#goal-msg").textContent=n>=g?"Objectif atteint. Tbarkallah !":"10 minutes suffisent. La régularité compte plus que la durée.";
+}
+function renderHome(){
+  renderGoal();
+  $("#cats").innerHTML=Object.entries(CATS).map(([k,name])=>{
+    const items=DATA.filter(d=>d.cat===k), k2=items.filter(d=>box(d.id)>=KNOWN).length;
+    return `<button class="cat" style="--c:${CAT_COLORS[k]}" data-cat="${k}" aria-pressed="${S.sel.includes(k)}">
+      <strong>${name} <span class="check">✓</span></strong><small>${k2} / ${items.length} maîtrisées</small>
+      <div class="bar"><i style="width:${k2/items.length*100}%"></i></div></button>`;
+  }).join("");
+  $$("#cats .cat").forEach(b=>b.onclick=()=>{
+    const k=b.dataset.cat; S.sel=S.sel.includes(k)?S.sel.filter(x=>x!==k):[...S.sel,k]; save();
+    b.setAttribute("aria-pressed",S.sel.includes(k)); homeLabels();
+  });
+  homeLabels();
+}
+function homeLabels(){$("#go-cards").textContent=S.sel.length?"Réviser ces thèmes":"Réviser avec les cartes";}
+$("#go-cards").onclick=()=>show("cards");
+$("#go-ex").onclick=()=>show("ex");
+$("#opt-arabic").checked=S.arabic;
+$("#opt-arabic").onchange=e=>{S.arabic=e.target.checked;save();};
+
+/* ================= CARTES (boîtes de Leitner) ================= */
+let deck=[],ci=0,flipped=false,cGood=0,customDeck=null;
+function startCards(){
+  if(customDeck){deck=customDeck;customDeck=null;$("#c-title").textContent="Cartes : points faibles";}
+  else{deck=shuffle(pool()).sort((a,b)=>box(a.id)-box(b.id)).slice(0,12);$("#c-title").textContent="Cartes";}
+  ci=0;cGood=0;$("#c-done").hidden=true;$("#c-area").hidden=false;renderCard();
+}
+function darHTML(d){return `<div class="lat" lang="ary-Latn">${esc(d.lat)}</div>${S.arabic?`<div class="arb" lang="ary">${esc(d.ar)}</div>`:""}`;}
+function face(d,side){
+  const frFirst=$("#opt-dir").checked, fr=`<div class="fr">${esc(d.fr)}</div>`;
+  const front=frFirst?fr:darHTML(d), back=frFirst?darHTML(d):fr;
+  if(side===0) return `<span class="chip">${CATS[d.cat]}</span>${front}<div class="hint">Dis-le à voix haute, puis touche pour vérifier</div>`;
+  return `<span class="chip">${CATS[d.cat]}</span>${front}<hr style="width:40%;border:0;border-top:1px solid var(--line)">${back}${d.note?`<div class="note">${esc(d.note)}</div>`:""}`;
+}
+function renderCard(){
+  if(ci>=deck.length){
+    $("#c-area").hidden=true;$("#c-done").hidden=false;$("#c-progress").textContent="";
+    $("#c-done").innerHTML=`<b>${cGood} / ${deck.length}</b><p>Série terminée. Les expressions marquées « À revoir » reviendront en priorité.</p>
+      <div class="row center"><button class="btn primary" id="c-more">Nouvelle série</button><button class="btn" id="c-ex">Passer aux exercices</button></div>`;
+    $("#c-more").onclick=startCards;$("#c-ex").onclick=()=>show("ex");renderGoal();return;
+  }
+  flipped=false;
+  $("#c-progress").textContent=`Carte ${ci+1} sur ${deck.length}`;
+  $("#card").style.setProperty("--c",CAT_COLORS[deck[ci].cat]);
+  $("#card").innerHTML=face(deck[ci],0);
+  $("#c-actions").style.visibility="hidden";
+}
+function flip(){if(ci>=deck.length)return;flipped=!flipped;$("#card").innerHTML=face(deck[ci],flipped?1:0);$("#c-actions").style.visibility=flipped?"visible":"hidden";}
+$("#card").onclick=flip;
+$("#card").onkeydown=e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();flip();}};
+function grade(ok){record(ok,{id:deck[ci].id});if(ok)cGood++;ci++;renderCard();}
+$("#c-know").onclick=()=>grade(true);
+$("#c-again").onclick=()=>grade(false);
+$("#opt-dir").onchange=()=>{if(ci<deck.length)renderCard();};
+
+/* ================= EXERCICES ================= */
+let exQs=[],exI=0,exGood=0,exAnswered=false,exType=null,exOpt={};
+const EX_TITLES={qcm:"Choisir la bonne traduction",write:"Écrire en darija",order:"Construire la phrase",conj:"Conjuguer"};
+
+function exMenu(){
+  $("#ex-menu").hidden=false;$("#ex-run").hidden=true;$("#ex-done").hidden=true;
+  $("#ex-scope").textContent=`Vocabulaire : ${scopeLabel()}. Tu peux changer de thèmes dans l'onglet Thèmes.`;
+}
+$$("#ex-menu [data-ex]").forEach(b=>b.onclick=()=>runEx(b.dataset.ex));
+$("#ex-quit").onclick=exMenu;
+
+function runEx(type,opt={}){
+  exType=type;exOpt=opt;exQs=GEN[type](opt);exI=0;exGood=0;
+  $("#ex-menu").hidden=true;$("#ex-done").hidden=true;$("#ex-run").hidden=false;
+  $("#ex-title").textContent=opt.verb?`Conjuguer : ${VERBS.find(v=>v.k===opt.verb).lat}`:EX_TITLES[type];
+  nextQ();
+}
+function nextQ(){
+  if(exI>=exQs.length) return exDone();
+  exAnswered=false;$("#ex-next").hidden=true;
+  $("#ex-progress").textContent=`Question ${exI+1} sur ${exQs.length} · ${exGood} réussie${exGood>1?"s":""}`;
+  exQs[exI]($("#ex-body"),ok=>{
+    if(exAnswered)return;exAnswered=true;if(ok)exGood++;
+    $("#ex-progress").textContent=`Question ${exI+1} sur ${exQs.length} · ${exGood} réussie${exGood>1?"s":""}`;
+    $("#ex-next").hidden=false;$("#ex-next").textContent=exI===exQs.length-1?"Voir le résultat":"Suivante";$("#ex-next").focus();
+  });
+}
+$("#ex-next").onclick=()=>{exI++;nextQ();};
+function exDone(){
+  $("#ex-run").hidden=true;$("#ex-done").hidden=false;
+  const r=exGood/exQs.length;
+  const msg=r>=.9?"Mzyan bzzaf ! Tbarkallah.":r>=.6?"Mzyan ! Encore un peu de pratique et ce sera acquis.":"Ma3lich. C'est en se trompant qu'on retient : les erreurs reviendront dans les cartes.";
+  $("#ex-done").innerHTML=`<b>${exGood} / ${exQs.length}</b><p>${msg}</p>
+    <div class="row center"><button class="btn primary" id="ex-again">Recommencer</button><button class="btn" id="ex-back">Autres exercices</button></div>`;
+  $("#ex-again").onclick=()=>runEx(exType,exOpt);$("#ex-back").onclick=exMenu;renderGoal();
+}
+
+// Normalisation tolérante pour l'écriture libre
+const norm=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
+function lev(a,b){const m=a.length,n=b.length;let p=Array.from({length:n+1},(_,j)=>j);for(let i=1;i<=m;i++){const c=[i];for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c;}return p[n];}
+function closeness(input,target){
+  const a=norm(input).replace(/ /g,""), b=norm(target).replace(/ /g,"");
+  if(!a) return "ko"; if(a===b) return "exact";
+  const tol=b.length<=4?0:b.length<=9?1:2;
+  return lev(a,b)<=tol?"close":"ko";
+}
+
+const GEN={
+  qcm(){
+    const p=pool();
+    return shuffle(p).slice(0,10).map(d=>(el,done)=>{
+      let others=shuffle(p.filter(x=>x.cat===d.cat&&x.id!==d.id));
+      if(others.length<3) others=others.concat(shuffle(DATA.filter(x=>x.id!==d.id&&!others.includes(x))));
+      const opts=shuffle([d,...others.slice(0,3)]), frToDar=$("#opt-qdir").checked;
+      el.innerHTML=`<div class="q" style="--c:${CAT_COLORS[d.cat]}">${frToDar?`<div class="muted">Comment dit-on…</div><div class="big">${esc(d.fr)}</div>`
+        :`<div class="muted">Que veut dire…</div><div class="big" lang="ary-Latn">${esc(d.lat)}</div>${S.arabic?`<div class="arb" lang="ary">${esc(d.ar)}</div>`:""}`}</div>
+        <div class="opts">${opts.map(o=>`<button class="opt" data-id="${o.id}">${frToDar?`${esc(o.lat)}${S.arabic?`<span class="arb" lang="ary">${esc(o.ar)}</span>`:""}`:esc(o.fr)}</button>`).join("")}</div>`;
+      el.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+        if(exAnswered)return;const ok=+b.dataset.id===d.id;
+        b.classList.add(ok?"ok":"ko");if(!ok)el.querySelector(`.opt[data-id="${d.id}"]`).classList.add("ok");
+        record(ok,{id:d.id});done(ok);
+      });
+    });
+  },
+  write(){
+    const p=pool().filter(d=>!d.lat.includes("…"));
+    return shuffle(p).sort((a,b)=>Math.min(box(a.id),2)-Math.min(box(b.id),2)).slice(0,8).map(d=>(el,done)=>{
+      el.innerHTML=`<div class="q" style="--c:${CAT_COLORS[d.cat]}"><div class="muted">Écris en darija…</div><div class="big">${esc(d.fr)}</div></div>
+        <form id="w-form" class="row" style="flex-wrap:nowrap"><input type="text" id="w-in" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Ta réponse en lettres latines" aria-label="Ta réponse"><button class="btn primary" type="submit">Vérifier</button></form>
+        <p class="small muted" style="margin:6px 0 0">Rappel : 3 = ع, 7 = ح, kh = خ, gh = غ</p><div id="w-fb"></div>`;
+      const inp=$("#w-in");inp.focus();
+      $("#w-form").onsubmit=e=>{
+        e.preventDefault();if(exAnswered||!inp.value.trim())return;
+        const c=closeness(inp.value,d.lat), ok=c!=="ko";
+        $("#w-fb").innerHTML=`<div class="fb ${ok?"ok":"ko"}">${c==="exact"?"<b>Exact !</b>":c==="close"?`<b>Presque, c'est bon.</b> On écrit : <b>${esc(d.lat)}</b>`:`<b>Pas tout à fait.</b> La réponse : <b>${esc(d.lat)}</b>`}${S.arabic?` <span class="arb" style="font-size:1.1rem" lang="ary">${esc(d.ar)}</span>`:""}${d.note?`<br><span class="small muted">${esc(d.note)}</span>`:""}</div>`;
+        inp.disabled=true;record(ok,{id:d.id});done(ok);
+      };
+    });
+  },
+  order(){
+    return shuffle(SENTENCES).slice(0,6).map(([dar,fr])=>(el,done)=>{
+      const words=dar.split(" ");let bank=shuffle(words.map((w,i)=>({w,i})));
+      if(bank.map(x=>x.w).join(" ")===dar&&words.length>1) bank=bank.slice(1).concat(bank[0]);
+      let ans=[];
+      el.innerHTML=`<div class="q" style="--c:#e8901a"><div class="muted">Construis la phrase…</div><div class="big">${esc(fr)}</div></div>
+        <div class="tiles answer" id="o-ans" aria-label="Ta phrase"></div><div class="tiles" id="o-bank"></div>
+        <div class="row" style="margin-top:8px"><button class="btn primary" id="o-check" disabled>Vérifier</button><button class="btn" id="o-clear">Effacer</button></div><div id="o-fb"></div>`;
+      function paint(){
+        $("#o-ans").innerHTML=ans.length?ans.map((x,k)=>`<button class="tile" data-k="${k}">${esc(x.w)}</button>`).join(""):`<span class="small muted" style="padding:8px">Touche les mots dans l'ordre</span>`;
+        $("#o-bank").innerHTML=bank.map((x,k)=>`<button class="tile" data-k="${k}">${esc(x.w)}</button>`).join("");
+        $("#o-check").disabled=bank.length>0||exAnswered;
+        if(exAnswered)return;
+        $$("#o-bank .tile").forEach(t=>t.onclick=()=>{ans.push(bank.splice(+t.dataset.k,1)[0]);paint();});
+        $$("#o-ans .tile").forEach(t=>t.onclick=()=>{bank.push(ans.splice(+t.dataset.k,1)[0]);paint();});
+      }
+      paint();
+      $("#o-clear").onclick=()=>{if(exAnswered)return;bank=bank.concat(ans);ans=[];paint();};
+      $("#o-check").onclick=()=>{
+        if(exAnswered)return;const ok=norm(ans.map(x=>x.w).join(" "))===norm(dar);
+        $("#o-fb").innerHTML=`<div class="fb ${ok?"ok":"ko"}">${ok?"<b>Parfait !</b>":`<b>Pas tout à fait.</b> L'ordre correct : <b>${esc(dar)}</b>`}</div>`;
+        record(ok,{order:true});exAnswered=true;paint();exAnswered=false;done(ok);
+      };
+    });
+  },
+  conj(opt){
+    const vs=opt.verb?VERBS.filter(v=>v.k===opt.verb):VERBS;
+    return Array.from({length:10},()=>{
+      const v=vs[Math.floor(Math.random()*vs.length)], t=shuffle(["past","pres","fut"])[0], p=Math.floor(Math.random()*8);
+      return (el,done)=>{
+        const answer=v[t][p];
+        const pool2=[...new Set(v[t].concat(v[t==="past"?"pres":"past"].slice(p,p+1)))].filter(f=>f!==answer);
+        const opts=shuffle([answer,...shuffle(pool2).slice(0,3)]);
+        el.innerHTML=`<div class="q" style="--c:#c0262d"><div class="muted">Conjugue ${TENSES[t]}</div>
+          <div class="big"><span style="color:var(--accent)">${PRONOUNS[p][0]}</span> + ${esc(v.lat.toLowerCase())}</div>
+          <div class="muted small">${PRONOUNS[p][1]} · ${esc(v.fr)}</div></div>
+          <div class="opts">${opts.map(o=>`<button class="opt" data-f="${esc(o)}">${esc(o)}</button>`).join("")}</div>`;
+        el.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+          if(exAnswered)return;const ok=b.dataset.f===answer;
+          b.classList.add(ok?"ok":"ko");if(!ok)[...el.querySelectorAll(".opt")].find(x=>x.dataset.f===answer).classList.add("ok");
+          record(ok,{verb:v.k});done(ok);
+        });
+      };
+    });
+  }
+};
+
+/* ================= CONJUGAISON ================= */
+let curVerb="kla";
+function verbRate(k){const s=S.vb[k];return s&&s.n?Math.round(s.ok/s.n*100):null;}
+function renderVerb(){
+  $("#verbs").innerHTML=VERBS.map(v=>`<button class="btn sm" data-v="${v.k}" aria-pressed="${v.k===curVerb}">${esc(v.lat)} <span class="muted">· ${esc(v.fr)}</span></button>`).join("");
+  $$("#verbs [data-v]").forEach(b=>b.onclick=()=>{curVerb=b.dataset.v;renderVerb();});
+  const v=VERBS.find(x=>x.k===curVerb), r=verbRate(v.k);
+  $("#v-lat").textContent=v.lat; $("#v-ar").textContent=S.arabic?v.ar:""; $("#v-fr").textContent=v.fr;
+  $("#v-note").textContent=v.note||""; $("#v-score").textContent=r===null?"Pas encore pratiqué":`${r} % de réussite`;
+  $("#v-rows").innerHTML=PRONOUNS.map((p,i)=>`<tr><td class="pr"><b>${p[0]}</b><br><span class="small">${p[1]}</span></td><td class="f">${v.past[i]}</td><td class="f">${v.pres[i]}</td><td class="f">${v.fut[i]}</td></tr>`).join("");
+  const neg=`<b>Négation</b> (ana) : ma ${v.past[0]}ch · ma ${v.pres[0]}ch · ma ghadich ${v.pres[0].slice(2)}`;
+  const imp=v.imp?`<b>Impératif</b> : ${v.imp[0]} (à un homme) · ${v.imp[1]} (à une femme) · ${v.imp[2]} (à plusieurs)`:`<b>Impératif</b> : peu utilisé pour ce verbe.`;
+  $("#v-extra").innerHTML=`<div>${imp}</div><div style="margin-top:6px">${neg}</div><div class="small muted" style="margin-top:6px">Au futur, on entend aussi <i>ghadya</i> pour une femme et <i>ghadyin</i> au pluriel.</div>`;
+}
+$("#v-train").onclick=()=>{show("ex");runEx("conj",{verb:curVerb});};
+
+/* ================= PROGRÈS ================= */
+function streak(){
+  let n=0;const d=new Date();
+  if(!(S.log[dkey(d)]||{}).n) d.setDate(d.getDate()-1);
+  while((S.log[dkey(d)]||{}).n){n++;d.setDate(d.getDate()-1);}
+  return n;
+}
+function renderProg(){
+  const known=DATA.filter(d=>box(d.id)>=KNOWN).length;
+  $("#p-known").textContent=known;$("#p-total").textContent=DATA.length;
+  let n7=0,ok7=0;const d=new Date();
+  for(let i=0;i<7;i++){const l=S.log[dkey(d)];if(l){n7+=l.n;ok7+=l.ok;}d.setDate(d.getDate()-1);}
+  $("#p-rate").textContent=n7?Math.round(ok7/n7*100)+" %":"–";
+  $("#p-streak").textContent=streak();
+
+  // Parcours
+  let current=-1;
+  const lv=LEVELS.map((L,i)=>{
+    let pct;
+    if(L.verbs){const good=VERBS.filter(v=>{const s=S.vb[v.k];return s&&s.n>=5&&s.ok/s.n>=.8;}).length;pct=good/VERBS.length;}
+    else{const items=DATA.filter(x=>L.cats.includes(x.cat));pct=items.filter(x=>box(x.id)>=KNOWN).length/items.length;}
+    const done=pct>=.8; if(!done&&current<0)current=i; return {...L,pct,done};
+  });
+  $("#p-levels").innerHTML=lv.map((L,i)=>`<div class="item"><div class="num ${L.done?"done":i===current?"now":""}">${L.done?"✓":i+1}</div>
+    <div><b>${L.name}</b>${i===current?' <span class="chip">en cours</span>':""}<p>${L.desc} Validé à 80 %.</p>
+    <div class="bar"><i class="${L.done?"":"acc"}" style="width:${Math.round(L.pct*100)}%"></i></div>
+    <span class="small muted">${Math.round(L.pct*100)} %</span></div></div>`).join("");
+
+  // Graphique 14 jours
+  const days=[];const dd=new Date();dd.setDate(dd.getDate()-13);
+  for(let i=0;i<14;i++){const k=dkey(dd);days.push({k,l:"DLMMJVS"[dd.getDay()],n:(S.log[k]||{}).n||0,ok:(S.log[k]||{}).ok||0});dd.setDate(dd.getDate()+1);}
+  const max=Math.max(S.goal,...days.map(x=>x.n)), W=280,H=110,top=10,base=90,bw=14,gap=(W-bw*14)/13;
+  const y=v=>base-(v/max)*(base-top);
+  let svg=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Réponses par jour sur 14 jours">`;
+  svg+=`<line x1="0" x2="${W}" y1="${y(S.goal)}" y2="${y(S.goal)}" stroke="var(--saffron)" stroke-dasharray="3 3" stroke-width="1"/>`;
+  svg+=`<text x="${W}" y="${y(S.goal)-3}" text-anchor="end" font-size="8" fill="var(--muted)">objectif ${S.goal}</text>`;
+  days.forEach((x,i)=>{const X=i*(bw+gap);
+    if(x.n){svg+=`<rect x="${X}" y="${y(x.n)}" width="${bw}" height="${base-y(x.n)}" rx="2" fill="var(--soft)"><title>${x.k} : ${x.n} réponses</title></rect>`;
+      svg+=`<rect x="${X}" y="${y(x.ok)}" width="${bw}" height="${base-y(x.ok)}" rx="2" fill="var(--accent)"><title>${x.k} : ${x.ok} bonnes sur ${x.n}</title></rect>`;}
+    else svg+=`<rect x="${X}" y="${base-2}" width="${bw}" height="2" fill="var(--line)"/>`;
+    svg+=`<text x="${X+bw/2}" y="${base+12}" text-anchor="middle" font-size="8" fill="${i===13?"var(--ink)":"var(--muted)"}" font-weight="${i===13?700:400}">${x.l}</text>`;
+  });
+  svg+=`<line x1="0" x2="${W}" y1="${base}" y2="${base}" stroke="var(--line)"/></svg>`;
+  $("#p-chart").innerHTML=svg;
+
+  // Par thème
+  $("#p-cats").innerHTML=Object.entries(CATS).map(([k,name])=>{
+    const it=DATA.filter(x=>x.cat===k),t=it.length,m=it.filter(x=>box(x.id)>=KNOWN).length,c=it.filter(x=>S.seen[x.id]&&box(x.id)<KNOWN).length;
+    return `<div class="panel" style="padding:10px 12px;border-left:4px solid ${CAT_COLORS[k]}"><div class="row between"><b>${name}</b><span class="small muted">${m} / ${t}</span></div>
+      <div class="bar" style="margin-top:6px"><i style="width:${m/t*100}%;background:${CAT_COLORS[k]}"></i><i style="width:${c/t*100}%;background:color-mix(in srgb,${CAT_COLORS[k]} 35%,var(--surface))"></i></div></div>`;
+  }).join("");
+
+  // Verbes
+  $("#p-verbs").innerHTML=VERBS.map(v=>{const s=S.vb[v.k];
+    return `<div class="li"><span><b>${esc(v.lat)}</b> <span class="muted">${esc(v.fr)}</span></span><span>${s&&s.n?`${Math.round(s.ok/s.n*100)} % sur ${s.n} essai${s.n>1?"s":""}`:"pas encore pratiqué"}</span></div>`;
+  }).join("");
+
+  // Points faibles
+  const weak=DATA.filter(x=>(S.err[x.id]||0)>=1).sort((a,b)=>S.err[b.id]-S.err[a.id]).slice(0,8);
+  $("#p-weak").innerHTML=weak.length?`<div class="list">${weak.map(x=>`<div class="li"><span><b>${esc(x.lat)}</b></span><span>${esc(x.fr)}</span></div>`).join("")}</div>
+    <div class="row" style="margin-top:10px"><button class="btn primary" id="p-weak-go">Réviser ces ${weak.length} expressions</button></div>`
+    :`<p class="muted">Rien pour l'instant. Les expressions ratées plusieurs fois apparaîtront ici.</p>`;
+  const g=$("#p-weak-go"); if(g) g.onclick=()=>{customDeck=shuffle(weak);show("cards");};
+}
+$("#reset").onclick=()=>$("#confirm-reset").hidden=false;
+$("#reset-no").onclick=()=>$("#confirm-reset").hidden=true;
+$("#reset-yes").onclick=()=>{S.box={};S.seen={};S.log={};S.err={};S.vb={};S.ord={n:0,ok:0};save();$("#confirm-reset").hidden=true;renderProg();};
+
+/* ================= MÉTHODE ================= */
+$("#pron-rows").innerHTML=PRON.map(r=>`<tr><td class="sym">${esc(r[0])}</td><td class="ar" lang="ar">${esc(r[1])}</td><td>${esc(r[2])}</td><td><i>${esc(r[3])}</i></td></tr>`).join("");
+
+renderHome();
+
+/* Passerelle vers la couche de synchronisation (voir le module plus bas) */
+window.__app = {
+  get state(){ return S; },
+  set state(v){ S = v; },
+  save, renderHome, renderProg,
+  reload(){ renderHome(); if(!$("#view-prog").hidden) renderProg(); }
+};
+</script>
+
+<!-- ============================================================
+     Synchronisation Firebase (facultative)
+     Sans firebase-config.js rempli, l'application fonctionne
+     normalement : la progression reste sur cet appareil.
+     ============================================================ -->
+<script type="module">
+const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
+const $ = s => document.querySelector(s);
+const panel = $("#sync-panel"), stateChip = $("#sync-state"), msg = $("#sync-msg");
+const form = $("#sync-form"), outRow = $("#sync-out-row");
+
+let initializeApp, getAuth, setPersistence, browserLocalPersistence,
+    createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,
+    getFirestore, doc, getDoc, setDoc;
+
+boot();
+
+async function boot(){
+  let firebaseConfig;
+  try {
+    ({ firebaseConfig } = await import("./firebase-config.js"));
+  } catch (e) {
+    console.info("Pas de firebase-config.js : la progression reste sur cet appareil.");
+    return;
+  }
+  if (!firebaseConfig || !firebaseConfig.apiKey || firebaseConfig.apiKey.startsWith("REMPLACE")) {
+    console.info("Firebase non configuré : la progression reste sur cet appareil.");
+    return;
+  }
+  // Le SDK n'est téléchargé que si la synchronisation est réellement configurée
+  try {
+    ({ initializeApp } = await import(SDK + "firebase-app.js"));
+    ({ getAuth, setPersistence, browserLocalPersistence, createUserWithEmailAndPassword,
+       signInWithEmailAndPassword, signOut, onAuthStateChanged } = await import(SDK + "firebase-auth.js"));
+    ({ getFirestore, doc, getDoc, setDoc } = await import(SDK + "firebase-firestore.js"));
+  } catch (e) {
+    console.warn("SDK Firebase injoignable : la progression reste sur cet appareil.");
+    return;
+  }
+  panel.hidden = false;
+  start(firebaseConfig);
+}
+
+function setChip(text, cls){ stateChip.textContent = text; stateChip.className = "chip" + (cls ? " " + cls : ""); }
+
+/* Fusionne la progression locale et celle du cloud sans rien perdre :
+   on garde toujours la meilleure valeur des deux côtés. */
+function merge(local, cloud){
+  const out = Object.assign({}, cloud);
+  const maxMap = (a = {}, b = {}) => {
+    const r = Object.assign({}, a);
+    for (const k in b) r[k] = Math.max(Number(r[k]) || 0, Number(b[k]) || 0);
+    return r;
+  };
+  out.box  = maxMap(cloud.box,  local.box);
+  out.err  = maxMap(cloud.err,  local.err);
+  out.seen = Object.assign({}, cloud.seen || {}, local.seen || {});
+  out.vb = Object.assign({}, cloud.vb || {});
+  for (const k in (local.vb || {})) {
+    const c = out.vb[k] || { n: 0, ok: 0 }, l = local.vb[k];
+    out.vb[k] = { n: Math.max(c.n, l.n), ok: Math.max(c.ok, l.ok) };
+  }
+  out.log = Object.assign({}, cloud.log || {});
+  for (const d in (local.log || {})) {
+    const c = out.log[d] || { n: 0, ok: 0 }, l = local.log[d];
+    out.log[d] = { n: Math.max(c.n, l.n), ok: Math.max(c.ok, l.ok) };
+  }
+  const co = cloud.ord || { n: 0, ok: 0 }, lo = local.ord || { n: 0, ok: 0 };
+  out.ord = { n: Math.max(co.n, lo.n), ok: Math.max(co.ok, lo.ok) };
+  // Réglages : l'appareil courant fait foi
+  out.arabic = local.arabic;
+  out.sel = local.sel;
+  out.goal = local.goal;
+  return out;
+}
+
+function start(firebaseConfig){
+  let db, auth, ref = null, lastPushed = "", timer = null;
+  try {
+    const app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+  } catch (e) {
+    setChip("Erreur", "err");
+    msg.textContent = "La configuration Firebase est invalide. Vérifie firebase-config.js.";
+    form.hidden = true;
+    return;
+  }
+
+  setPersistence(auth, browserLocalPersistence).catch(() => {});
+
+  async function pull(){
+    const snap = await getDoc(ref);
+    if (snap.exists() && snap.data().state) {
+      window.__app.state = merge(window.__app.state, snap.data().state);
+      window.__app.save();
+      window.__app.reload();
+    }
+    lastPushed = JSON.stringify(window.__app.state);
+    await push(true);
+  }
+
+  async function push(force){
+    if (!ref) return;
+    const now = JSON.stringify(window.__app.state);
+    if (!force && now === lastPushed) return;
+    try {
+      await setDoc(ref, { state: JSON.parse(now), updatedAt: Date.now() });
+      lastPushed = now;
+      setChip("Synchronisé", "on");
+    } catch (e) {
+      setChip("Hors ligne", "err");
+    }
+  }
+
+  onAuthStateChanged(auth, async user => {
+    clearInterval(timer);
+    if (!user) {
+      ref = null;
+      form.hidden = false; outRow.hidden = true;
+      setChip("Non connectée");
+      msg.textContent = "Crée un compte pour retrouver ta progression sur tous tes appareils.";
+      return;
+    }
+    ref = doc(db, "progression", user.uid);
+    form.hidden = true; outRow.hidden = false;
+    setChip("Synchronisation…");
+    msg.textContent = "Connectée en tant que " + user.email + ".";
+    try {
+      await pull();
+    } catch (e) {
+      setChip("Hors ligne", "err");
+      msg.textContent = "Connectée, mais la lecture a échoué. La progression reste sur cet appareil.";
+    }
+    timer = setInterval(() => push(false), 5000);
+  });
+
+  // Dernière sauvegarde quand l'onglet passe en arrière-plan
+  addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") push(false); });
+  addEventListener("pagehide", () => push(false));
+
+  function friendly(err){
+    const c = (err && err.code) || "";
+    if (c.includes("invalid-email")) return "Cette adresse e-mail n'est pas valide.";
+    if (c.includes("missing-password") || c.includes("weak-password")) return "Le mot de passe doit faire au moins 6 caractères.";
+    if (c.includes("email-already-in-use")) return "Ce compte existe déjà. Utilise « Se connecter ».";
+    if (c.includes("invalid-credential") || c.includes("wrong-password") || c.includes("user-not-found"))
+      return "E-mail ou mot de passe incorrect.";
+    if (c.includes("network")) return "Pas de connexion internet.";
+    if (c.includes("operation-not-allowed")) return "La connexion par e-mail n'est pas activée dans la console Firebase.";
+    return "Échec : " + (c || "erreur inconnue");
+  }
+
+  const creds = () => [$("#sync-email").value.trim(), $("#sync-pass").value];
+
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const [m, p] = creds();
+    try { await signInWithEmailAndPassword(auth, m, p); }
+    catch (err) { msg.textContent = friendly(err); setChip("Non connectée", "err"); }
+  });
+
+  $("#sync-up").addEventListener("click", async () => {
+    const [m, p] = creds();
+    try { await createUserWithEmailAndPassword(auth, m, p); }
+    catch (err) { msg.textContent = friendly(err); setChip("Non connectée", "err"); }
+  });
+
+  $("#sync-out").addEventListener("click", async () => {
+    await push(false);
+    await signOut(auth);
+  });
+}
+</script>
+</body>
+</html>
