@@ -872,7 +872,7 @@ $("#opt-arabic").onchange=e=>{S.arabic=e.target.checked;save();};
 
 /* ================= CARTES (boîtes de Leitner) ================= */
 let deck=[],ci=0,flipped=false,cGood=0,customDeck=null;
-const SERIE=15; // cartes par série : couvre un thème entier sans faire un marathon
+const SERIE=40; // assez pour couvrir n'importe quel thème en une seule série
 let reviewAll=false;
 function startCards(){
   if(customDeck){deck=customDeck;customDeck=null;$("#c-title").textContent="Cartes : points faibles";}
