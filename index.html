@@ -362,6 +362,7 @@ td.ar{font-family:var(--arabic);font-size:1.3rem}
     <tbody id="pron-rows"></tbody>
   </table>
   </div>
+  <p class="small muted" id="build" style="margin-top:18px"></p>
   <div class="tip"><b>Astuce :</b> le darija « avale » beaucoup de voyelles. <i>Bghit</i> se dit presque en une syllabe. Fais-toi répéter les mots par quelqu'un de la famille : rien ne remplace l'oreille.</div>
 </section>
 </div>
@@ -1137,6 +1138,13 @@ $("#reset-yes").onclick=()=>{S.box={};S.seen={};S.log={};S.err={};S.vb={};S.ord=
 
 /* ================= MÉTHODE ================= */
 $("#pron-rows").innerHTML=PRON.map(r=>`<tr><td class="sym">${esc(r[0])}</td><td class="ar" lang="ar">${esc(r[1])}</td><td>${esc(r[2])}</td><td><i>${esc(r[3])}</i></td></tr>`).join("");
+
+/* Date de la version servie : permet de vérifier d'un coup d'oeil
+   qu'on ne regarde pas une copie en cache du navigateur. */
+try{
+  const d=new Date(document.lastModified);
+  $("#build").textContent="Version en ligne du "+d.toLocaleDateString("fr-FR",{day:"numeric",month:"long"})+" à "+d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})+".";
+}catch(e){}
 
 renderHome();
 
