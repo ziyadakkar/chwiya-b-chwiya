@@ -202,7 +202,7 @@ td.ar{font-family:var(--arabic);font-size:1.3rem}
     <span class="small muted" id="goal-msg">10 minutes suffisent. La régularité compte plus que la durée.</span>
   </div>
   <h2>Choisis un thème</h2>
-  <p class="muted" style="margin-top:-4px">Touche un ou plusieurs thèmes, puis révise avec les cartes ou fais des exercices. Sans sélection, tout est mélangé.<br><span class="small">Une expression est <b>acquise</b> après 3 bonnes réponses. Le pourcentage avance à chaque bonne réponse.</span></p>
+  <p class="muted" style="margin-top:-4px">Touche un ou plusieurs thèmes, puis révise avec les cartes ou fais des exercices. Sans sélection, tout est mélangé.<br><span class="small">Une expression devient <b>maîtrisée</b> quand tu réponds « Je savais » sur sa carte. Elle ne te sera plus proposée.</span></p>
   <div class="cats" id="cats"></div>
   <div class="row" style="margin-top:14px">
     <button class="btn primary" id="go-cards">Réviser avec les cartes</button>
@@ -308,7 +308,7 @@ td.ar{font-family:var(--arabic);font-size:1.3rem}
   </div>
 
   <div class="stats">
-    <div class="stat" style="--c:var(--mint)"><b id="p-known">0</b><span>expressions acquises sur <span id="p-total">0</span></span></div>
+    <div class="stat" style="--c:var(--mint)"><b id="p-known">0</b><span>expressions maîtrisées sur <span id="p-total">0</span></span></div>
     <div class="stat" style="--c:var(--accent)"><b id="p-rate">–</b><span>de bonnes réponses sur 7 jours</span></div>
     <div class="stat" style="--c:var(--rose)"><b id="p-streak">0</b><span>jours d'affilée</span></div>
   </div>
@@ -323,7 +323,7 @@ td.ar{font-family:var(--arabic);font-size:1.3rem}
 
   <h3>Par thème</h3>
   <div class="list" id="p-cats"></div>
-  <div class="legend"><span>La barre avance d'un tiers à chaque bonne réponse. À 100 %, tout le thème est acquis.</span></div>
+  <div class="legend"><span>Une expression marquée « À revoir » redevient à apprendre et reviendra dans les cartes.</span></div>
 
   <h3>Conjugaison</h3>
   <div class="list" id="p-verbs"></div>
@@ -794,15 +794,14 @@ let S={box:{},seen:{},arabic:true,sel:[],log:{},err:{},vb:{},goal:20,ord:{n:0,ok
 try{const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S,JSON.parse(raw));}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 const box=id=>S.box[id]||0;
-const KNOWN=3;
-/* Progression d'un groupe d'expressions.
-   La barre avance à chaque bonne réponse (points partiels) et ne saute pas
-   d'un coup à la 3e : sans ça, une série entière peut se terminer sur 0 %. */
+const KNOWN=1;
+/* Une expression est maîtrisée dès qu'on a répondu « Je savais » sur sa carte.
+   Les exercices n'y touchent pas : ils alimentent les stats et les points faibles. */
+const known=id=>box(id)>=KNOWN;
 function prog(items){
   const n=items.length;
-  const pts=items.reduce((s,d)=>s+Math.min(box(d.id),KNOWN),0);
-  return {n, pts, pct:n?pts/(KNOWN*n):0,
-          acq:items.filter(d=>box(d.id)>=KNOWN).length,
+  return {n, acq:items.filter(d=>known(d.id)).length,
+          pct:n?items.filter(d=>known(d.id)).length/n:0,
           vues:items.filter(d=>S.seen[d.id]).length};
 }
 
@@ -817,10 +816,11 @@ function pool(){const sel=S.sel.length?S.sel:Object.keys(CATS);return DATA.filte
 function scopeLabel(){return S.sel.length?S.sel.map(k=>CATS[k]).join(", "):"tous les thèmes";}
 
 // Enregistre une réponse : journal du jour, boîte de révision, erreurs
-function record(ok,{id=null,verb=null,order=false}={}){
+function record(ok,{id=null,verb=null,order=false,master=false}={}){
   const t=today(); S.log[t]=S.log[t]||{n:0,ok:0}; S.log[t].n++; if(ok)S.log[t].ok++;
   if(id!==null){
-    S.seen[id]=1; S.box[id]=ok?Math.min(box(id)+1,5):0;
+    S.seen[id]=1;
+    if(master) S.box[id]=ok?1:0;
     if(!ok) S.err[id]=(S.err[id]||0)+1; else if(S.err[id]) S.err[id]=Math.max(0,S.err[id]-0.5);
   }
   if(verb){S.vb[verb]=S.vb[verb]||{n:0,ok:0};S.vb[verb].n++;if(ok)S.vb[verb].ok++;}
@@ -854,7 +854,7 @@ function renderHome(){
     const p=prog(DATA.filter(d=>d.cat===k));
     return `<button class="cat" style="--c:${CAT_COLORS[k]}" data-cat="${k}" aria-pressed="${S.sel.includes(k)}">
       <strong>${name} <span class="check">✓</span></strong>
-      <small>${Math.round(p.pct*100)} % · ${p.acq} / ${p.n} acquises</small>
+      <small>${p.acq} / ${p.n} maîtrisées</small>
       <div class="bar"><i style="width:${p.pct*100}%"></i></div></button>`;
   }).join("");
   $$("#cats .cat").forEach(b=>b.onclick=()=>{
@@ -872,12 +872,14 @@ $("#opt-arabic").onchange=e=>{S.arabic=e.target.checked;save();};
 /* ================= CARTES (boîtes de Leitner) ================= */
 let deck=[],ci=0,flipped=false,cGood=0,customDeck=null;
 const SERIE=15; // cartes par série : couvre un thème entier sans faire un marathon
+let reviewAll=false;
 function startCards(){
   if(customDeck){deck=customDeck;customDeck=null;$("#c-title").textContent="Cartes : points faibles";}
   else{
-    const p=pool(), reste=p.filter(d=>box(d.id)<KNOWN);
-    // On travaille d'abord ce qui n'est pas acquis ; si tout l'est, on révise.
-    deck=shuffle(reste.length?reste:p).sort((a,b)=>box(a.id)-box(b.id)).slice(0,SERIE);
+    const p=pool();
+    // On ne propose jamais une expression déjà maîtrisée, sauf révision demandée.
+    deck=shuffle(reviewAll?p:p.filter(d=>!known(d.id))).slice(0,SERIE);
+    reviewAll=false;
     $("#c-title").textContent="Cartes";
   }
   ci=0;cGood=0;$("#c-done").hidden=true;$("#c-area").hidden=false;renderCard();
@@ -892,18 +894,25 @@ function face(d,side){
 function renderCard(){
   if(ci>=deck.length){
     $("#c-area").hidden=true;$("#c-done").hidden=false;$("#c-progress").textContent="";
-    const p=prog(pool()), reste=pool().filter(d=>box(d.id)<KNOWN).length;
+    const p=prog(pool()), reste=pool().filter(d=>!known(d.id)).length;
     const quoi=S.sel.length===1?CATS[S.sel[0]]:(S.sel.length?"ces thèmes":"l'ensemble");
+    const titre=deck.length?`${cGood} / ${deck.length}`:`${p.acq} / ${p.n}`;
     const suite=reste
-      ? `Il reste <b>${reste}</b> expression${reste>1?"s":""} à travailler dans ${quoi} — ${Math.round(p.pct*100)} % acquis.`
-      : `Tout est acquis dans ${quoi}. Tbarkallah !`;
-    $("#c-done").innerHTML=`<b>${cGood} / ${deck.length}</b><p>${suite}</p>
-      <div class="row center">${reste?'<button class="btn primary" id="c-more">Continuer la série</button>':'<button class="btn primary" id="c-more">Réviser quand même</button>'}<button class="btn" id="c-ex">Passer aux exercices</button></div>`;
-    $("#c-more").onclick=startCards;$("#c-ex").onclick=()=>show("ex");renderGoal();return;
+      ? `Il reste <b>${reste}</b> expression${reste>1?"s":""} à apprendre dans ${quoi}.`
+      : `Tout est maîtrisé dans ${quoi} : ${p.acq} expressions sur ${p.n}. Tbarkallah !`;
+    const bouton=reste
+      ? '<button class="btn primary" id="c-more">Continuer</button>'
+      : '<button class="btn primary" id="c-rev">Réviser quand même</button>';
+    $("#c-done").innerHTML=`<b>${titre}</b><p>${suite}</p>
+      <div class="row center">${bouton}<button class="btn" id="c-home2">Changer de thème</button><button class="btn" id="c-ex">Exercices</button></div>`;
+    const rev=$("#c-rev"); if(rev) rev.onclick=()=>{reviewAll=true;startCards();};
+    $("#c-home2").onclick=()=>show("home");
+    const more=$("#c-more"); if(more) more.onclick=startCards;
+    $("#c-ex").onclick=()=>show("ex");renderGoal();return;
   }
   flipped=false;
   const pc=prog(pool());
-  $("#c-progress").textContent=`Carte ${ci+1} sur ${deck.length} · ${S.sel.length===1?CATS[S.sel[0]]+" " :""}${Math.round(pc.pct*100)} % acquis`;
+  $("#c-progress").textContent=`Carte ${ci+1} sur ${deck.length} · ${S.sel.length===1?CATS[S.sel[0]]+" : ":""}${pc.acq} / ${pc.n} maîtrisées`;
   $("#card").style.setProperty("--c",CAT_COLORS[deck[ci].cat]);
   $("#card").innerHTML=face(deck[ci],0);
   $("#c-actions").style.visibility="hidden";
@@ -911,7 +920,7 @@ function renderCard(){
 function flip(){if(ci>=deck.length)return;flipped=!flipped;$("#card").innerHTML=face(deck[ci],flipped?1:0);$("#c-actions").style.visibility=flipped?"visible":"hidden";}
 $("#card").onclick=flip;
 $("#card").onkeydown=e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();flip();}};
-function grade(ok){record(ok,{id:deck[ci].id});if(ok)cGood++;ci++;renderCard();}
+function grade(ok){record(ok,{id:deck[ci].id,master:true});if(ok)cGood++;ci++;renderCard();}
 $("#c-know").onclick=()=>grade(true);
 $("#c-again").onclick=()=>grade(false);
 $("#opt-dir").onchange=()=>{if(ci<deck.length)renderCard();};
@@ -1106,7 +1115,7 @@ function renderProg(){
   // Par thème
   $("#p-cats").innerHTML=Object.entries(CATS).map(([k,name])=>{
     const p=prog(DATA.filter(x=>x.cat===k));
-    return `<div class="panel" style="padding:10px 12px;border-left:4px solid ${CAT_COLORS[k]}"><div class="row between"><b>${name}</b><span class="small muted">${Math.round(p.pct*100)} % · ${p.acq} / ${p.n} acquises · ${p.vues} vues</span></div>
+    return `<div class="panel" style="padding:10px 12px;border-left:4px solid ${CAT_COLORS[k]}"><div class="row between"><b>${name}</b><span class="small muted">${p.acq} / ${p.n} maîtrisées</span></div>
       <div class="bar" style="margin-top:6px"><i style="width:${p.pct*100}%;background:${CAT_COLORS[k]}"></i></div></div>`;
   }).join("");
 
