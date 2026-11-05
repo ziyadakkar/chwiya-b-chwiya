@@ -208,8 +208,17 @@ td.ar{font-family:var(--arabic);font-size:1.3rem}
     <button class="btn primary" id="go-cards">Réviser avec les cartes</button>
     <button class="btn" id="go-ex">Faire des exercices</button>
   </div>
+  <div id="confirm-home" class="tip" hidden>
+    <b>Tout remettre à zéro ?</b><br>
+    Les expressions maîtrisées, l'historique et les statistiques seront effacés, sur cet appareil et sur ta sauvegarde en ligne si tu es connectée. Le vocabulaire, lui, ne bouge pas.
+    <div class="row" style="margin-top:8px">
+      <button class="btn bad" id="reset-home-yes">Oui, tout effacer</button>
+      <button class="btn" id="reset-home-no">Annuler</button>
+    </div>
+  </div>
   <div class="row between" style="margin-top:16px">
     <label class="toggle" for="opt-arabic"><input type="checkbox" id="opt-arabic"> Afficher l'écriture arabe</label>
+    <button class="btn sm" id="reset-home">Tout remettre à zéro</button>
   </div>
 </section>
 
@@ -335,9 +344,10 @@ td.ar{font-family:var(--arabic);font-size:1.3rem}
     <button class="btn sm" id="reset">Remettre la progression à zéro</button>
   </div>
   <div id="confirm-reset" class="tip" hidden>
-    Effacer toute la progression enregistrée sur cet appareil ?
+    <b>Tout remettre à zéro ?</b><br>
+    Les expressions maîtrisées, l'historique et les statistiques seront effacés, sur cet appareil et sur ta sauvegarde en ligne si tu es connectée. Le vocabulaire, lui, ne bouge pas.
     <div class="row" style="margin-top:8px">
-      <button class="btn bad" id="reset-yes">Oui, effacer</button>
+      <button class="btn bad" id="reset-yes">Oui, tout effacer</button>
       <button class="btn" id="reset-no">Annuler</button>
     </div>
   </div>
@@ -1132,9 +1142,19 @@ function renderProg(){
     :`<p class="muted">Rien pour l'instant. Les expressions ratées plusieurs fois apparaîtront ici.</p>`;
   const g=$("#p-weak-go"); if(g) g.onclick=()=>{customDeck=shuffle(weak);show("cards");};
 }
+function resetAll(){
+  S.box={};S.seen={};S.log={};S.err={};S.vb={};S.ord={n:0,ok:0};
+  save();
+  $("#confirm-reset").hidden=true;$("#confirm-home").hidden=true;
+  deck=[];ci=0;cGood=0;customDeck=null;
+  renderHome(); if(!$("#view-prog").hidden) renderProg();
+}
 $("#reset").onclick=()=>$("#confirm-reset").hidden=false;
 $("#reset-no").onclick=()=>$("#confirm-reset").hidden=true;
-$("#reset-yes").onclick=()=>{S.box={};S.seen={};S.log={};S.err={};S.vb={};S.ord={n:0,ok:0};save();$("#confirm-reset").hidden=true;renderProg();};
+$("#reset-yes").onclick=resetAll;
+$("#reset-home").onclick=()=>{$("#confirm-home").hidden=false;$("#confirm-home").scrollIntoView({block:"nearest"});};
+$("#reset-home-no").onclick=()=>$("#confirm-home").hidden=true;
+$("#reset-home-yes").onclick=resetAll;
 
 /* ================= MÉTHODE ================= */
 $("#pron-rows").innerHTML=PRON.map(r=>`<tr><td class="sym">${esc(r[0])}</td><td class="ar" lang="ar">${esc(r[1])}</td><td>${esc(r[2])}</td><td><i>${esc(r[3])}</i></td></tr>`).join("");
