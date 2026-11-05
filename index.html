@@ -871,9 +871,15 @@ $("#opt-arabic").onchange=e=>{S.arabic=e.target.checked;save();};
 
 /* ================= CARTES (boîtes de Leitner) ================= */
 let deck=[],ci=0,flipped=false,cGood=0,customDeck=null;
+const SERIE=15; // cartes par série : couvre un thème entier sans faire un marathon
 function startCards(){
   if(customDeck){deck=customDeck;customDeck=null;$("#c-title").textContent="Cartes : points faibles";}
-  else{deck=shuffle(pool()).sort((a,b)=>box(a.id)-box(b.id)).slice(0,12);$("#c-title").textContent="Cartes";}
+  else{
+    const p=pool(), reste=p.filter(d=>box(d.id)<KNOWN);
+    // On travaille d'abord ce qui n'est pas acquis ; si tout l'est, on révise.
+    deck=shuffle(reste.length?reste:p).sort((a,b)=>box(a.id)-box(b.id)).slice(0,SERIE);
+    $("#c-title").textContent="Cartes";
+  }
   ci=0;cGood=0;$("#c-done").hidden=true;$("#c-area").hidden=false;renderCard();
 }
 function darHTML(d){return `<div class="lat" lang="ary-Latn">${esc(d.lat)}</div>${S.arabic?`<div class="arb" lang="ary">${esc(d.ar)}</div>`:""}`;}
@@ -886,12 +892,18 @@ function face(d,side){
 function renderCard(){
   if(ci>=deck.length){
     $("#c-area").hidden=true;$("#c-done").hidden=false;$("#c-progress").textContent="";
-    $("#c-done").innerHTML=`<b>${cGood} / ${deck.length}</b><p>Série terminée. Les expressions marquées « À revoir » reviendront en priorité.</p>
-      <div class="row center"><button class="btn primary" id="c-more">Nouvelle série</button><button class="btn" id="c-ex">Passer aux exercices</button></div>`;
+    const p=prog(pool()), reste=pool().filter(d=>box(d.id)<KNOWN).length;
+    const quoi=S.sel.length===1?CATS[S.sel[0]]:(S.sel.length?"ces thèmes":"l'ensemble");
+    const suite=reste
+      ? `Il reste <b>${reste}</b> expression${reste>1?"s":""} à travailler dans ${quoi} — ${Math.round(p.pct*100)} % acquis.`
+      : `Tout est acquis dans ${quoi}. Tbarkallah !`;
+    $("#c-done").innerHTML=`<b>${cGood} / ${deck.length}</b><p>${suite}</p>
+      <div class="row center">${reste?'<button class="btn primary" id="c-more">Continuer la série</button>':'<button class="btn primary" id="c-more">Réviser quand même</button>'}<button class="btn" id="c-ex">Passer aux exercices</button></div>`;
     $("#c-more").onclick=startCards;$("#c-ex").onclick=()=>show("ex");renderGoal();return;
   }
   flipped=false;
-  $("#c-progress").textContent=`Carte ${ci+1} sur ${deck.length}`;
+  const pc=prog(pool());
+  $("#c-progress").textContent=`Carte ${ci+1} sur ${deck.length} · ${S.sel.length===1?CATS[S.sel[0]]+" " :""}${Math.round(pc.pct*100)} % acquis`;
   $("#card").style.setProperty("--c",CAT_COLORS[deck[ci].cat]);
   $("#card").innerHTML=face(deck[ci],0);
   $("#c-actions").style.visibility="hidden";
