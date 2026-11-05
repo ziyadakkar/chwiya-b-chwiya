@@ -202,7 +202,7 @@ td.ar{font-family:var(--arabic);font-size:1.3rem}
     <span class="small muted" id="goal-msg">10 minutes suffisent. La régularité compte plus que la durée.</span>
   </div>
   <h2>Choisis un thème</h2>
-  <p class="muted" style="margin-top:-4px">Touche un ou plusieurs thèmes, puis révise avec les cartes ou fais des exercices. Sans sélection, tout est mélangé.</p>
+  <p class="muted" style="margin-top:-4px">Touche un ou plusieurs thèmes, puis révise avec les cartes ou fais des exercices. Sans sélection, tout est mélangé.<br><span class="small">Une expression est <b>acquise</b> après 3 bonnes réponses. Le pourcentage avance à chaque bonne réponse.</span></p>
   <div class="cats" id="cats"></div>
   <div class="row" style="margin-top:14px">
     <button class="btn primary" id="go-cards">Réviser avec les cartes</button>
@@ -308,7 +308,7 @@ td.ar{font-family:var(--arabic);font-size:1.3rem}
   </div>
 
   <div class="stats">
-    <div class="stat" style="--c:var(--mint)"><b id="p-known">0</b><span>expressions maîtrisées sur <span id="p-total">0</span></span></div>
+    <div class="stat" style="--c:var(--mint)"><b id="p-known">0</b><span>expressions acquises sur <span id="p-total">0</span></span></div>
     <div class="stat" style="--c:var(--accent)"><b id="p-rate">–</b><span>de bonnes réponses sur 7 jours</span></div>
     <div class="stat" style="--c:var(--rose)"><b id="p-streak">0</b><span>jours d'affilée</span></div>
   </div>
@@ -323,7 +323,7 @@ td.ar{font-family:var(--arabic);font-size:1.3rem}
 
   <h3>Par thème</h3>
   <div class="list" id="p-cats"></div>
-  <div class="legend"><span>Couleur pleine : maîtrisé (3 bonnes réponses de suite)</span><span>Couleur claire : en cours</span><span>Gris : pas encore vu</span></div>
+  <div class="legend"><span>La barre avance d'un tiers à chaque bonne réponse. À 100 %, tout le thème est acquis.</span></div>
 
   <h3>Conjugaison</h3>
   <div class="list" id="p-verbs"></div>
@@ -795,6 +795,16 @@ try{const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S,JSON.parse(ra
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 const box=id=>S.box[id]||0;
 const KNOWN=3;
+/* Progression d'un groupe d'expressions.
+   La barre avance à chaque bonne réponse (points partiels) et ne saute pas
+   d'un coup à la 3e : sans ça, une série entière peut se terminer sur 0 %. */
+function prog(items){
+  const n=items.length;
+  const pts=items.reduce((s,d)=>s+Math.min(box(d.id),KNOWN),0);
+  return {n, pts, pct:n?pts/(KNOWN*n):0,
+          acq:items.filter(d=>box(d.id)>=KNOWN).length,
+          vues:items.filter(d=>S.seen[d.id]).length};
+}
 
 const $=s=>document.querySelector(s);
 const $$=s=>document.querySelectorAll(s);
@@ -841,10 +851,11 @@ function renderGoal(){
 function renderHome(){
   renderGoal();
   $("#cats").innerHTML=Object.entries(CATS).map(([k,name])=>{
-    const items=DATA.filter(d=>d.cat===k), k2=items.filter(d=>box(d.id)>=KNOWN).length;
+    const p=prog(DATA.filter(d=>d.cat===k));
     return `<button class="cat" style="--c:${CAT_COLORS[k]}" data-cat="${k}" aria-pressed="${S.sel.includes(k)}">
-      <strong>${name} <span class="check">✓</span></strong><small>${k2} / ${items.length} maîtrisées</small>
-      <div class="bar"><i style="width:${k2/items.length*100}%"></i></div></button>`;
+      <strong>${name} <span class="check">✓</span></strong>
+      <small>${Math.round(p.pct*100)} % · ${p.acq} / ${p.n} acquises</small>
+      <div class="bar"><i style="width:${p.pct*100}%"></i></div></button>`;
   }).join("");
   $$("#cats .cat").forEach(b=>b.onclick=()=>{
     const k=b.dataset.cat; S.sel=S.sel.includes(k)?S.sel.filter(x=>x!==k):[...S.sel,k]; save();
@@ -1055,7 +1066,7 @@ function renderProg(){
   const lv=LEVELS.map((L,i)=>{
     let pct;
     if(L.verbs){const good=VERBS.filter(v=>{const s=S.vb[v.k];return s&&s.n>=5&&s.ok/s.n>=.8;}).length;pct=good/VERBS.length;}
-    else{const items=DATA.filter(x=>L.cats.includes(x.cat));pct=items.filter(x=>box(x.id)>=KNOWN).length/items.length;}
+    else pct=prog(DATA.filter(x=>L.cats.includes(x.cat))).pct;
     const done=pct>=.8; if(!done&&current<0)current=i; return {...L,pct,done};
   });
   $("#p-levels").innerHTML=lv.map((L,i)=>`<div class="item"><div class="num ${L.done?"done":i===current?"now":""}">${L.done?"✓":i+1}</div>
@@ -1082,9 +1093,9 @@ function renderProg(){
 
   // Par thème
   $("#p-cats").innerHTML=Object.entries(CATS).map(([k,name])=>{
-    const it=DATA.filter(x=>x.cat===k),t=it.length,m=it.filter(x=>box(x.id)>=KNOWN).length,c=it.filter(x=>S.seen[x.id]&&box(x.id)<KNOWN).length;
-    return `<div class="panel" style="padding:10px 12px;border-left:4px solid ${CAT_COLORS[k]}"><div class="row between"><b>${name}</b><span class="small muted">${m} / ${t}</span></div>
-      <div class="bar" style="margin-top:6px"><i style="width:${m/t*100}%;background:${CAT_COLORS[k]}"></i><i style="width:${c/t*100}%;background:color-mix(in srgb,${CAT_COLORS[k]} 35%,var(--surface))"></i></div></div>`;
+    const p=prog(DATA.filter(x=>x.cat===k));
+    return `<div class="panel" style="padding:10px 12px;border-left:4px solid ${CAT_COLORS[k]}"><div class="row between"><b>${name}</b><span class="small muted">${Math.round(p.pct*100)} % · ${p.acq} / ${p.n} acquises · ${p.vues} vues</span></div>
+      <div class="bar" style="margin-top:6px"><i style="width:${p.pct*100}%;background:${CAT_COLORS[k]}"></i></div></div>`;
   }).join("");
 
   // Verbes
